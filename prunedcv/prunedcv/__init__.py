@@ -23,12 +23,8 @@ class PrunerCV:
         self.best_folds_list = []
         self.first_run = True
 
-    def _populate_best_folds_list_at_first_run(self, value):
-
-        self.best_folds_list.append(value)
-
-        if len(self.best_folds_list) == self.n_folds:
-            self.first_run = False
+    def cross_validate_score(self):
+        pass
 
     def add_fold_value(self, value):
 
@@ -47,6 +43,13 @@ class PrunerCV:
 
         if len(self.current_folds_list) == self.n_folds:
             self._serve_last_fold()
+
+    def _populate_best_folds_list_at_first_run(self, value):
+
+        self.best_folds_list.append(value)
+
+        if len(self.best_folds_list) == self.n_folds:
+            self.first_run = False
 
     def _decide_prun(self):
 
@@ -67,6 +70,3 @@ class PrunerCV:
 
         self.cross_val_score = sum(self.current_folds_list) / self.n_folds
         self.current_folds_list = []
-
-    def cross_validate_score(self):
-        pass
