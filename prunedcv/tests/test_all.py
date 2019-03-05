@@ -1,4 +1,6 @@
 from prunedcv.prunedcv import PrunerCV, ValueTooSmallError
+from sklearn.datasets import fetch_california_housing
+from lightgbm import LGBMRegressor
 import pytest
 
 
@@ -99,3 +101,22 @@ def test_prun_pruned_cv_score():
     for i in range(2):
         pruner.add_fold_value_and_prun(2.0)
     assert pruner.cross_val_score == 2.0
+
+
+def test_prun_3models():
+
+    data = fetch_california_housing()
+    x = data['data']
+    y = data['target']
+
+    pruner = PrunerCV(n_folds=8, tolerance=.1)
+
+    model1 = LGBMRegressor(max_depth=25)
+    model2 = LGBMRegressor(max_depth=10)
+    model3 = LGBMRegressor(max_depth=2)
+
+    pruner.cross_validate_score(model1, x, y, shuffle=True)
+    pruner.cross_validate_score(model2, x, y, shuffle=True)
+    pruner.cross_validate_score(model3, x, y, shuffle=True)
+
+    assert pruner.best_model.get_params()['max_depth'] == 10
