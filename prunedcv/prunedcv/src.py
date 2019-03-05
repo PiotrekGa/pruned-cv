@@ -23,7 +23,7 @@ class PrunerCV:
         self.best_folds_list = []
         self.first_run = True
 
-    def _populate_best_folds_at_first_run(self, value):
+    def _populate_best_folds_list_at_first_run(self, value):
 
         if self.first_run:
             self.best_folds_list.append(value)
@@ -41,7 +41,7 @@ class PrunerCV:
 
         self.current_folds_list.append(value)
 
-        self._populate_best_folds_at_first_run(value)
+        self._populate_best_folds_list_at_first_run(value)
 
     def decide_prun(self):
 
