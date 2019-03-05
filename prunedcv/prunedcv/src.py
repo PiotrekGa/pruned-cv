@@ -68,5 +68,5 @@ class PrunerCV:
         self.cross_val_score = sum(self.current_folds_list) / self.n_folds
         self.current_folds_list = []
 
-    def cross_validatate_score(self):
+    def cross_validate_score(self):
         pass
