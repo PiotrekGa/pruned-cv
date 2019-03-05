@@ -1,4 +1,4 @@
-from prunedcv.prunedcv.src import PrunerCV, ValueTooSmallError
+from prunedcv.prunedcv import PrunerCV, ValueTooSmallError
 import pytest
 
 
