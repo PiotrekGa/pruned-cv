@@ -18,20 +18,19 @@ class PrunerCV:
         self.n_folds = n_folds
         self.tolerance_scaler = tolerance + 1
         self.prun = False
-        self.value_to_return = 0.0
+        self.cross_val_score = 0.0
         self.current_folds_list = []
         self.best_folds_list = []
         self.first_run = True
 
     def _populate_best_folds_list_at_first_run(self, value):
 
-        if self.first_run:
-            self.best_folds_list.append(value)
+        self.best_folds_list.append(value)
 
-            if len(self.best_folds_list) == self.n_folds:
-                self.first_run = False
+        if len(self.best_folds_list) == self.n_folds:
+            self.first_run = False
 
-    def add_folds_value(self, value):
+    def add_fold_value(self, value):
 
         if not isinstance(value, float):
             raise TypeError
@@ -41,22 +40,33 @@ class PrunerCV:
 
         self.current_folds_list.append(value)
 
-        self._populate_best_folds_list_at_first_run(value)
+        if self.first_run:
+            self._populate_best_folds_list_at_first_run(value)
 
-    def decide_prun(self):
+        self._decide_prun()
+
+        if len(self.current_folds_list) == self.n_folds:
+            self._serve_last_fold()
+
+    def _decide_prun(self):
 
         fold_num = len(self.current_folds_list)
         mean_best_folds = sum(self.best_folds_list[:fold_num]) / fold_num
         mean_curr_folds = sum(self.current_folds_list) / fold_num
 
-        if len(self.current_folds_list) >= 2:
+        if self.n_folds > fold_num >= 2:
             if mean_best_folds * self.tolerance_scaler < mean_curr_folds:
                 self.prun = True
-                self.value_to_return = mean_curr_folds
+                self.cross_val_score = mean_curr_folds
                 self.current_folds_list = []
 
-        if fold_num == self.n_folds and mean_best_folds > mean_curr_folds:
+    def _serve_last_fold(self):
+
+        if sum(self.best_folds_list) > sum(self.current_folds_list):
             self.best_folds_list = self.current_folds_list
-            self.current_folds_list = []
-        elif len(self.current_folds_list) == self.n_folds:
-            self.current_folds_list = []
+
+        self.cross_val_score = sum(self.current_folds_list) / self.n_folds
+        self.current_folds_list = []
+
+    def cross_validatate_score(self):
+        pass
