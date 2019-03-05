@@ -26,7 +26,7 @@ class PrunerCV:
     def cross_validate_score(self):
         pass
 
-    def add_fold_value(self, value):
+    def add_fold_value_and_prun(self, value):
 
         if not isinstance(value, float):
             raise TypeError
