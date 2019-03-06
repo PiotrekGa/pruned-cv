@@ -4,7 +4,7 @@ from sklearn import metrics
 
 class PrunerCV:
 
-    def __init__(self, n_splits, tolerance):
+    def __init__(self, n_splits, tolerance, splits_to_start_pruning=2):
 
         if not isinstance(n_splits, int):
             raise TypeError
@@ -16,7 +16,9 @@ class PrunerCV:
             raise ValueError
 
         self.n_splits = n_splits
+        self.tolerance = tolerance
         self.tolerance_scaler = tolerance + 1
+        self.splits_to_start_pruning = splits_to_start_pruning
         self.prun = False
         self.cross_val_score = 0.0
         self.current_splits_list = []
@@ -75,7 +77,7 @@ class PrunerCV:
         mean_best_splits = sum(self.best_splits_list[:split_num]) / split_num
         mean_curr_splits = sum(self.current_splits_list) / split_num
 
-        if self.n_splits > split_num >= 2:
+        if self.n_splits > split_num >= self.splits_to_start_pruning:
             if mean_best_splits * self.tolerance_scaler < mean_curr_splits:
                 self.prun = True
                 self.cross_val_score = mean_curr_splits
