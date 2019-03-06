@@ -1,5 +1,5 @@
 from sklearn.model_selection import KFold
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn import metrics
 
 
 class PrunerCV:
@@ -37,9 +37,9 @@ class PrunerCV:
                 y_test_teor = self.model.predict(x_test)
 
                 if metric == 'mse':
-                    self.add_fold_value_and_prun(mean_squared_error(y_test, y_test_teor))
+                    self.add_fold_value_and_prun(metrics.mean_squared_error(y_test, y_test_teor))
                 if metric == 'mae':
-                    self.add_fold_value_and_prun(mean_absolute_error(y_test, y_test_teor))
+                    self.add_fold_value_and_prun(metrics.mean_absolute_error(y_test, y_test_teor))
 
         self.prun = False
         return self.cross_val_score
