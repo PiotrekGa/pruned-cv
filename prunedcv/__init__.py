@@ -1,5 +1,6 @@
 from sklearn.model_selection import KFold
 from sklearn import metrics
+import numpy as np
 
 
 class PrunerCV:
@@ -28,6 +29,12 @@ class PrunerCV:
         self.model = None
 
     def cross_validate_score(self, model, x, y, metric='mse', shuffle=False, random_state=42):
+
+        if not isinstance(x, np.ndarray):
+            raise TypeError
+
+        if not isinstance(y, np.ndarray):
+            raise TypeError
 
         self.model = model
         kf = KFold(n_splits=self.n_splits, shuffle=shuffle, random_state=random_state)

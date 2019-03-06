@@ -1,6 +1,7 @@
 from prunedcv import PrunerCV
 from sklearn.datasets import fetch_california_housing
 from lightgbm import LGBMRegressor
+import numpy as np
 import pytest
 
 
@@ -160,3 +161,36 @@ def test_prun_3models():
     pruner.cross_validate_score(model3, x, y, shuffle=True)
 
     assert pruner.best_model.get_params()['max_depth'] == 10
+
+
+def test_prun_cv_x():
+
+    with pytest.raises(TypeError):
+        pruner = PrunerCV(n_splits=4, tolerance=.1)
+
+        model = LGBMRegressor()
+        x = [1,2,3]
+        y = np.array([1,2,3])
+        pruner.cross_validate_score(model, x, y)
+
+
+def test_prun_cv_y():
+
+    with pytest.raises(TypeError):
+        pruner = PrunerCV(n_splits=4, tolerance=.1)
+
+        model = LGBMRegressor()
+        y = [1,2,3]
+        x = np.array([1,2,3])
+        pruner.cross_validate_score(model, x, y)
+
+
+def test_prun_cv_xy():
+
+    with pytest.raises(TypeError):
+        pruner = PrunerCV(n_splits=4, tolerance=.1)
+
+        model = LGBMRegressor()
+        y = [1,2,3]
+        x = [1,2,3]
+        pruner.cross_validate_score(model, x, y)
