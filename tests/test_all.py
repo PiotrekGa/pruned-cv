@@ -2,6 +2,7 @@ from prunedcv import PrunerCV
 from sklearn.datasets import fetch_california_housing
 from lightgbm import LGBMRegressor
 import numpy as np
+import pandas as pd
 import pytest
 
 
@@ -158,11 +159,11 @@ def test_prun_3models():
     model2 = LGBMRegressor(max_depth=10)
     model3 = LGBMRegressor(max_depth=2)
 
-    pruner.cross_validate_score(model1, x, y, shuffle=True)
-    pruner.cross_validate_score(model2, x, y, shuffle=True)
-    pruner.cross_validate_score(model3, x, y, shuffle=True)
+    score1 = pruner.cross_validate_score(model1, x, y, shuffle=True)
+    score2 = pruner.cross_validate_score(model2, x, y, shuffle=True)
+    score3 = pruner.cross_validate_score(model3, x, y, shuffle=True)
 
-    assert pruner.best_model.get_params()['max_depth'] == 10
+    assert sum(pruner.best_splits_list) / pruner.n_splits == score2
 
 
 def test_prun_cv_x():
@@ -196,3 +197,49 @@ def test_prun_cv_xy():
         y = [1, 2, 3]
         x = [1, 2, 3]
         pruner.cross_validate_score(model, x, y)
+
+
+def test_prun_cv_x_df():
+
+    data = fetch_california_housing()
+    x = pd.DataFrame(data['data'])
+    y = data['target']
+
+    pruner = PrunerCV(n_splits=8, tolerance=.1)
+
+    model = LGBMRegressor()
+
+    pruner.cross_validate_score(model, x, y)
+
+    assert len(pruner.best_splits_list) == pruner.n_splits
+
+
+def test_prun_cv_xy_df_ser():
+
+    data = fetch_california_housing()
+    x = pd.DataFrame(data['data'])
+    y = pd.Series(data['target'])
+
+    pruner = PrunerCV(n_splits=8, tolerance=.1)
+
+    model = LGBMRegressor()
+
+    pruner.cross_validate_score(model, x, y)
+
+    assert len(pruner.best_splits_list) == pruner.n_splits
+
+
+def test_prun_cv_y_ser():
+
+    data = fetch_california_housing()
+    x = data['data']
+    y = pd.Series(data['target'])
+
+    pruner = PrunerCV(n_splits=8, tolerance=.1)
+
+    model = LGBMRegressor()
+
+    pruner.cross_validate_score(model, x, y)
+
+    assert len(pruner.best_splits_list) == pruner.n_splits
+

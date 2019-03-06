@@ -1,6 +1,7 @@
 from sklearn.model_selection import KFold
 from sklearn import metrics
-import numpy as np
+import numpy
+import pandas
 
 
 class PrunerCV:
@@ -25,25 +26,34 @@ class PrunerCV:
         self.current_splits_list = []
         self.best_splits_list = []
         self.first_run = True
-        self.best_model = None
-        self.model = None
 
     def cross_validate_score(self, model, x, y, metric='mse', shuffle=False, random_state=42):
 
-        if not isinstance(x, np.ndarray):
+        if not isinstance(x, (numpy.ndarray, pandas.core.frame.DataFrame)):
             raise TypeError
 
-        if not isinstance(y, np.ndarray):
+        if not isinstance(y, (numpy.ndarray, pandas.core.series.Series)):
             raise TypeError
 
-        self.model = model
         kf = KFold(n_splits=self.n_splits, shuffle=shuffle, random_state=random_state)
         for train_idx, test_idx in kf.split(x, y):
             if not self.prun:
-                x_train, y_train = x[train_idx], y[train_idx]
-                x_test, y_test = x[test_idx], y[test_idx]
-                self.model.fit(x_train, y_train)
-                y_test_teor = self.model.predict(x_test)
+
+                if isinstance(x, numpy.ndarray):
+                    x_train = x[train_idx]
+                    x_test = x[test_idx]
+                else:
+                    x_train = x.iloc[train_idx, :]
+                    x_test = x.iloc[test_idx, :]
+                if isinstance(y, numpy.ndarray):
+                    y_train = y[train_idx]
+                    y_test = y[test_idx]
+                else:
+                    y_train = y.iloc[train_idx]
+                    y_test = y.iloc[test_idx]
+
+                model.fit(x_train, y_train)
+                y_test_teor = model.predict(x_test)
 
                 if metric == 'mse':
                     self.add_split_value_and_prun(metrics.mean_squared_error(y_test, y_test_teor))
@@ -95,7 +105,6 @@ class PrunerCV:
 
         if sum(self.best_splits_list) > sum(self.current_splits_list):
             self.best_splits_list = self.current_splits_list
-            self.best_model = self.model
 
         self.cross_val_score = sum(self.current_splits_list) / self.n_splits
         self.current_splits_list = []

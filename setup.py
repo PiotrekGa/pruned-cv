@@ -8,7 +8,8 @@ setup(
     packages=['prunedcv',],
     install_requires=[
         'scikit-learn>=0.20.2',
-        'numpy>=1.16.2'],
+        'pandas>=0.24.1',
+        'numpy>=1.16.1'],
     license='MIT',
     long_description=open('README.md').read(),
     url="https://github.com/PiotrekGa/pruned-cv"
