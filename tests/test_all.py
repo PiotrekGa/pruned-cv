@@ -163,7 +163,7 @@ def test_prun_3models():
     score2 = pruner.cross_validate_score(model2, x, y, shuffle=True)
     score3 = pruner.cross_validate_score(model3, x, y, shuffle=True)
 
-    assert sum(pruner.best_splits_list) / pruner.n_splits == score2
+    assert (sum(pruner.best_splits_list) / pruner.n_splits == score2) and (score2 < score1) and (score2 < score3)
 
 
 def test_prun_cv_x():
@@ -243,3 +243,16 @@ def test_prun_cv_y_ser():
 
     assert len(pruner.best_splits_list) == pruner.n_splits
 
+
+def test_prun_set_tolerance_1():
+
+    with pytest.raises(TypeError):
+        pruner = PrunerCV(4, 0.1)
+        pruner.set_tolerance(1)
+
+
+def test_prun_set_tolerance_2():
+
+    with pytest.raises(ValueError):
+        pruner = PrunerCV(4, 0.1)
+        pruner.set_tolerance(-1.0)

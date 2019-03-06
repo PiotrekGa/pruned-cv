@@ -35,6 +35,9 @@ class PrunerCV:
         if not isinstance(y, (numpy.ndarray, pandas.core.series.Series)):
             raise TypeError
 
+        if metric not in ['mse', 'mae']:
+            raise ValueError
+
         kf = KFold(n_splits=self.n_splits, shuffle=shuffle, random_state=random_state)
         for train_idx, test_idx in kf.split(x, y):
             if not self.prun:
@@ -57,7 +60,7 @@ class PrunerCV:
 
                 if metric == 'mse':
                     self.add_split_value_and_prun(metrics.mean_squared_error(y_test, y_test_teor))
-                if metric == 'mae':
+                elif metric == 'mae':
                     self.add_split_value_and_prun(metrics.mean_absolute_error(y_test, y_test_teor))
 
         self.prun = False
@@ -97,9 +100,13 @@ class PrunerCV:
         if self.n_splits > split_num >= self.splits_to_start_pruning:
             if mean_best_splits * self.tolerance_scaler < mean_curr_splits:
                 self.prun = True
-                self.cross_val_score = mean_curr_splits
+                self.cross_val_score = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
+                print(self.current_splits_list)
                 self.current_splits_list = []
                 print('trial pruned at {} fold'.format(split_num))
+
+    def _predict_pruned_score(self, mean_curr_splits, mean_best_splits):
+        return (mean_curr_splits / mean_best_splits) * (sum(self.best_splits_list) / self.n_splits)
 
     def _serve_last_split(self):
 
@@ -108,3 +115,13 @@ class PrunerCV:
 
         self.cross_val_score = sum(self.current_splits_list) / self.n_splits
         self.current_splits_list = []
+
+    def set_tolerance(self, tolerance):
+
+        if not isinstance(tolerance, float):
+            raise TypeError
+        if tolerance < 0:
+            raise ValueError
+
+        self.tolerance = tolerance
+        self.tolerance_scaler = tolerance + 1
