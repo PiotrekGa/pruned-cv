@@ -70,12 +70,14 @@ def test_prun_folds_int():
 
     with pytest.raises(TypeError):
         pruner = PrunerCV(1.1, 0.1)
+        pruner.add_split_value_and_prun(1)
 
 
 def test_prun_folds_num():
 
     with pytest.raises(ValueError):
         pruner = PrunerCV(1, 0.1)
+        pruner.add_split_value_and_prun(1)
 
 
 def test_prun_vals_type():
@@ -169,8 +171,8 @@ def test_prun_cv_x():
         pruner = PrunerCV(n_splits=4, tolerance=.1)
 
         model = LGBMRegressor()
-        x = [1,2,3]
-        y = np.array([1,2,3])
+        x = [1, 2, 3]
+        y = np.array([1, 2, 3])
         pruner.cross_validate_score(model, x, y)
 
 
@@ -180,8 +182,8 @@ def test_prun_cv_y():
         pruner = PrunerCV(n_splits=4, tolerance=.1)
 
         model = LGBMRegressor()
-        y = [1,2,3]
-        x = np.array([1,2,3])
+        y = [1, 2, 3]
+        x = np.array([1, 2, 3])
         pruner.cross_validate_score(model, x, y)
 
 
@@ -191,6 +193,6 @@ def test_prun_cv_xy():
         pruner = PrunerCV(n_splits=4, tolerance=.1)
 
         model = LGBMRegressor()
-        y = [1,2,3]
-        x = [1,2,3]
+        y = [1, 2, 3]
+        x = [1, 2, 3]
         pruner.cross_validate_score(model, x, y)
