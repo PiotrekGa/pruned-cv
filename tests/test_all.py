@@ -1,4 +1,4 @@
-from prunedcv import PrunerCV, ValueTooSmallError
+from prunedcv import PrunerCV
 from sklearn.datasets import fetch_california_housing
 from lightgbm import LGBMRegressor
 import pytest
@@ -73,7 +73,7 @@ def test_prun_folds_int():
 
 def test_prun_folds_num():
 
-    with pytest.raises(ValueTooSmallError):
+    with pytest.raises(ValueError):
         pruner = PrunerCV(1, 0.1)
 
 

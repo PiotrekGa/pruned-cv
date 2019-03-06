@@ -1,9 +1,6 @@
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-class ValueTooSmallError(Exception):
-    pass
-
 
 class PrunerCV:
 
@@ -12,11 +9,11 @@ class PrunerCV:
         if not isinstance(n_folds, int):
             raise TypeError
         if n_folds < 2:
-            raise ValueTooSmallError
+            raise ValueError
         if not isinstance(tolerance, float):
             raise TypeError
         if tolerance < 0:
-            raise ValueTooSmallError
+            raise ValueError
 
         self.n_folds = n_folds
         self.tolerance_scaler = tolerance + 1
