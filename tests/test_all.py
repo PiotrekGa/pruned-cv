@@ -271,3 +271,16 @@ def test_prun_cv_metric():
         model = LGBMRegressor()
 
         pruner.cross_validate_score(model, x, y, metric='rmsle')
+
+
+def test_pruner_mae():
+
+    data = fetch_california_housing()
+    x = data['data']
+    y = pd.Series(data['target'])
+
+    pruner = PrunerCV(4, 0.1)
+
+    model = LGBMRegressor(objective='mae')
+
+    pruner.cross_validate_score(model, x, y, metric='mae')
