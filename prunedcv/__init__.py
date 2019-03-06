@@ -101,7 +101,6 @@ class PrunerCV:
             if mean_best_splits * self.tolerance_scaler_ < mean_curr_splits:
                 self.prun = True
                 self.cross_val_score = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
-                print(self.current_splits_list_)
                 self.current_splits_list_ = []
                 print('trial pruned at {} fold'.format(split_num))
 
