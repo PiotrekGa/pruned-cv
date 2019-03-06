@@ -6,7 +6,7 @@ import pandas
 
 class PrunerCV:
 
-    def __init__(self, n_splits, tolerance, splits_to_start_pruning=2):
+    def __init__(self, n_splits, tolerance, splits_to_start_pruning=2, minimize=True):
 
         if not isinstance(n_splits, int):
             raise TypeError
@@ -19,8 +19,8 @@ class PrunerCV:
 
         self.n_splits = n_splits
         self.tolerance = tolerance
-        self.tolerance_scaler_ = tolerance + 1
         self.splits_to_start_pruning = splits_to_start_pruning
+        self.minimize = minimize
         self.prun = False
         self.cross_val_score = None
         self.current_splits_list_ = []
@@ -74,7 +74,10 @@ class PrunerCV:
         if len(self.current_splits_list_) == 0:
             self.prun = False
 
-        self.current_splits_list_.append(value)
+        if self.minimize:
+            self.current_splits_list_.append(value)
+        else:
+            self.current_splits_list_.append(-value)
 
         if self.first_run_:
             self._populate_best_splits_list_at_first_run(value)
@@ -98,7 +101,10 @@ class PrunerCV:
         mean_curr_splits = sum(self.current_splits_list_) / split_num
 
         if self.n_splits > split_num >= self.splits_to_start_pruning:
-            if mean_best_splits * self.tolerance_scaler_ < mean_curr_splits:
+
+            tolerance_scaler_pos = 1 + self.minimize * self.tolerance
+            tolerance_scaler_neg = 1 + (1 - self.minimize) * self.tolerance
+            if mean_best_splits * tolerance_scaler_pos < mean_curr_splits * tolerance_scaler_neg:
                 self.prun = True
                 self.cross_val_score = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
                 self.current_splits_list_ = []
@@ -123,4 +129,4 @@ class PrunerCV:
             raise ValueError
 
         self.tolerance = tolerance
-        self.tolerance_scaler_ = tolerance + 1
+
