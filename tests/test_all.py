@@ -256,3 +256,18 @@ def test_prun_set_tolerance_2():
     with pytest.raises(ValueError):
         pruner = PrunerCV(4, 0.1)
         pruner.set_tolerance(-1.0)
+
+
+def test_prun_cv_metric():
+
+    with pytest.raises(ValueError):
+
+        data = fetch_california_housing()
+        x = data['data']
+        y = pd.Series(data['target'])
+
+        pruner = PrunerCV(4, 0.1)
+
+        model = LGBMRegressor()
+
+        pruner.cross_validate_score(model, x, y, metric='rmsle')
