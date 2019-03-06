@@ -54,7 +54,7 @@ def test_prun_first_run():
     for i in range(4):
         pruner.add_split_value_and_prun(1.0)
 
-    assert pruner.best_splits_list == [1.0, 1.0, 1.0, 1.0]
+    assert pruner.best_splits_list_ == [1.0, 1.0, 1.0, 1.0]
 
 
 def test_prun_first_run_check():
@@ -64,7 +64,7 @@ def test_prun_first_run_check():
     for i in range(4):
         pruner.add_split_value_and_prun(1.0)
 
-    assert not pruner.first_run
+    assert not pruner.first_run_
 
 
 def test_prun_folds_int():
@@ -131,7 +131,7 @@ def test_prun_score_val_best():
 
     pruner.add_split_value_and_prun(1.1)
 
-    assert sum(pruner.best_splits_list) / pruner.n_splits == 1.0
+    assert sum(pruner.best_splits_list_) / pruner.n_splits == 1.0
 
 
 def test_prun_pruned_cv_score():
@@ -163,7 +163,7 @@ def test_prun_3models():
     score2 = pruner.cross_validate_score(model2, x, y, shuffle=True)
     score3 = pruner.cross_validate_score(model3, x, y, shuffle=True)
 
-    assert (sum(pruner.best_splits_list) / pruner.n_splits == score2) and (score2 < score1) and (score2 < score3)
+    assert (sum(pruner.best_splits_list_) / pruner.n_splits == score2) and (score2 < score1) and (score2 < score3)
 
 
 def test_prun_cv_x():
@@ -211,7 +211,7 @@ def test_prun_cv_x_df():
 
     pruner.cross_validate_score(model, x, y)
 
-    assert len(pruner.best_splits_list) == pruner.n_splits
+    assert len(pruner.best_splits_list_) == pruner.n_splits
 
 
 def test_prun_cv_xy_df_ser():
@@ -226,7 +226,7 @@ def test_prun_cv_xy_df_ser():
 
     pruner.cross_validate_score(model, x, y)
 
-    assert len(pruner.best_splits_list) == pruner.n_splits
+    assert len(pruner.best_splits_list_) == pruner.n_splits
 
 
 def test_prun_cv_y_ser():
@@ -241,7 +241,7 @@ def test_prun_cv_y_ser():
 
     pruner.cross_validate_score(model, x, y)
 
-    assert len(pruner.best_splits_list) == pruner.n_splits
+    assert len(pruner.best_splits_list_) == pruner.n_splits
 
 
 def test_prun_set_tolerance_1():

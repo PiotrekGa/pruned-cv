@@ -19,13 +19,13 @@ class PrunerCV:
 
         self.n_splits = n_splits
         self.tolerance = tolerance
-        self.tolerance_scaler = tolerance + 1
+        self.tolerance_scaler_ = tolerance + 1
         self.splits_to_start_pruning = splits_to_start_pruning
         self.prun = False
-        self.cross_val_score = 0.0
-        self.current_splits_list = []
-        self.best_splits_list = []
-        self.first_run = True
+        self.cross_val_score = None
+        self.current_splits_list_ = []
+        self.best_splits_list_ = []
+        self.first_run_ = True
 
     def cross_validate_score(self, model, x, y, metric='mse', shuffle=False, random_state=42):
 
@@ -71,50 +71,50 @@ class PrunerCV:
         if not isinstance(value, float):
             raise TypeError
 
-        if len(self.current_splits_list) == 0:
+        if len(self.current_splits_list_) == 0:
             self.prun = False
 
-        self.current_splits_list.append(value)
+        self.current_splits_list_.append(value)
 
-        if self.first_run:
+        if self.first_run_:
             self._populate_best_splits_list_at_first_run(value)
 
         self._decide_prun()
 
-        if len(self.current_splits_list) == self.n_splits:
+        if len(self.current_splits_list_) == self.n_splits:
             self._serve_last_split()
 
     def _populate_best_splits_list_at_first_run(self, value):
 
-        self.best_splits_list.append(value)
+        self.best_splits_list_.append(value)
 
-        if len(self.best_splits_list) == self.n_splits:
-            self.first_run = False
+        if len(self.best_splits_list_) == self.n_splits:
+            self.first_run_ = False
 
     def _decide_prun(self):
 
-        split_num = len(self.current_splits_list)
-        mean_best_splits = sum(self.best_splits_list[:split_num]) / split_num
-        mean_curr_splits = sum(self.current_splits_list) / split_num
+        split_num = len(self.current_splits_list_)
+        mean_best_splits = sum(self.best_splits_list_[:split_num]) / split_num
+        mean_curr_splits = sum(self.current_splits_list_) / split_num
 
         if self.n_splits > split_num >= self.splits_to_start_pruning:
-            if mean_best_splits * self.tolerance_scaler < mean_curr_splits:
+            if mean_best_splits * self.tolerance_scaler_ < mean_curr_splits:
                 self.prun = True
                 self.cross_val_score = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
-                print(self.current_splits_list)
-                self.current_splits_list = []
+                print(self.current_splits_list_)
+                self.current_splits_list_ = []
                 print('trial pruned at {} fold'.format(split_num))
 
     def _predict_pruned_score(self, mean_curr_splits, mean_best_splits):
-        return (mean_curr_splits / mean_best_splits) * (sum(self.best_splits_list) / self.n_splits)
+        return (mean_curr_splits / mean_best_splits) * (sum(self.best_splits_list_) / self.n_splits)
 
     def _serve_last_split(self):
 
-        if sum(self.best_splits_list) > sum(self.current_splits_list):
-            self.best_splits_list = self.current_splits_list
+        if sum(self.best_splits_list_) > sum(self.current_splits_list_):
+            self.best_splits_list_ = self.current_splits_list_
 
-        self.cross_val_score = sum(self.current_splits_list) / self.n_splits
-        self.current_splits_list = []
+        self.cross_val_score = sum(self.current_splits_list_) / self.n_splits
+        self.current_splits_list_ = []
 
     def set_tolerance(self, tolerance):
 
@@ -124,4 +124,4 @@ class PrunerCV:
             raise ValueError
 
         self.tolerance = tolerance
-        self.tolerance_scaler = tolerance + 1
+        self.tolerance_scaler_ = tolerance + 1
