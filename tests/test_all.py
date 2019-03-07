@@ -284,3 +284,31 @@ def test_pruner_mae():
     model = LGBMRegressor(objective='mae')
 
     pruner.cross_validate_score(model, x, y, metric='mae')
+
+
+def test_pruner_higher_value1():
+
+    pruner = PrunerCV(4, 0.1)
+
+    assert pruner._significantly_higher_value(1.0, 2.0, True, .1)
+
+
+def test_pruner_higher_value2():
+
+    pruner = PrunerCV(4, 0.1)
+
+    assert not pruner._significantly_higher_value(1.0, 1.05, True, .1)
+
+
+def test_pruner_higher_value3():
+
+    pruner = PrunerCV(4, 0.1)
+
+    assert not pruner._significantly_higher_value(-1.0, -1.05, False, .1)
+
+
+def test_pruner_higher_value4():
+
+    pruner = PrunerCV(4, 0.1)
+
+    assert pruner._significantly_higher_value(-1.0, -0.8, False, .1)

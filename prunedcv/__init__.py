@@ -102,13 +102,17 @@ class PrunerCV:
 
         if self.n_splits > split_num >= self.splits_to_start_pruning:
 
-            tolerance_scaler_pos = 1 + self.minimize * self.tolerance
-            tolerance_scaler_neg = 1 + (1 - self.minimize) * self.tolerance
-            if mean_best_splits * tolerance_scaler_pos < mean_curr_splits * tolerance_scaler_neg:
+            if self._significantly_higher_value(mean_best_splits, mean_curr_splits, self.minimize, self.tolerance):
                 self.prun = True
                 self.cross_val_score = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
                 self.current_splits_list_ = []
                 print('trial pruned at {} fold'.format(split_num))
+
+    @staticmethod
+    def _significantly_higher_value(mean_best_splits, mean_curr_splits, minimize, tolerance):
+        tolerance_scaler_if_min = 1 + minimize * tolerance
+        tolerance_scaler_if_max = 1 + (1 - minimize) * tolerance
+        return mean_best_splits * tolerance_scaler_if_min < mean_curr_splits * tolerance_scaler_if_max
 
     def _predict_pruned_score(self, mean_curr_splits, mean_best_splits):
         return (mean_curr_splits / mean_best_splits) * (sum(self.best_splits_list_) / self.n_splits)
