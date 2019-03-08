@@ -12,13 +12,9 @@ class PrunerCV:
             raise TypeError
         if n_splits < 2:
             raise ValueError
-        if not isinstance(tolerance, float):
-            raise TypeError
-        if tolerance < 0:
-            raise ValueError
 
         self.n_splits = n_splits
-        self.tolerance = tolerance
+        self.set_tolerance(tolerance)
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
         self.prun = False
@@ -26,6 +22,15 @@ class PrunerCV:
         self.current_splits_list_ = []
         self.best_splits_list_ = []
         self.first_run_ = True
+        
+    def set_tolerance(self, tolerance):
+
+        if not isinstance(tolerance, float):
+            raise TypeError
+        if tolerance < 0:
+            raise ValueError
+
+        self.tolerance = tolerance
 
     def cross_validate_score(self, model, x, y, metric='mse', shuffle=False, random_state=42):
 
@@ -124,13 +129,3 @@ class PrunerCV:
 
         self.cross_val_score = sum(self.current_splits_list_) / self.n_splits
         self.current_splits_list_ = []
-
-    def set_tolerance(self, tolerance):
-
-        if not isinstance(tolerance, float):
-            raise TypeError
-        if tolerance < 0:
-            raise ValueError
-
-        self.tolerance = tolerance
-
