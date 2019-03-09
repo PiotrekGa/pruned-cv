@@ -1,7 +1,60 @@
-from sklearn.model_selection import KFold, ParameterGrid
+from sklearn.model_selection import KFold, ParameterGrid, ParameterSampler
 from sklearn import metrics
 import numpy
 import pandas
+
+
+class PrunedRandomSearchCV:
+
+    def __init__(self,
+                 estimator,
+                 params_grid,
+                 cv,
+                 tolerance,
+                 splits_to_start_pruning=2,
+                 minimize=True,
+                 probabilistic_prun=False):
+
+        self.estimator = estimator
+        self.params_grid = params_grid
+        self.cv = cv
+        self.tolerance = tolerance
+        self.splits_to_start_pruning = splits_to_start_pruning
+        self.minimize = minimize
+        self.probabilistic_prun = probabilistic_prun
+        self.params_grid_iterable = ParameterSampler(self.params_grid)
+        self.best_params = None
+        self.best_score = None
+
+    def fit(self,
+            x,
+            y,
+            metric='mse',
+            shuffle=False,
+            random_state=None):
+
+        pruner = PrunedCV(self.cv,
+                          self.tolerance,
+                          self.splits_to_start_pruning,
+                          self.minimize,
+                          self.probabilistic_prun)
+
+        for params_set in self.params_grid_iterable:
+            self.estimator.set_params(**params_set)
+            score = pruner.cross_val_score(self.estimator,
+                                           x,
+                                           y,
+                                           metric=metric,
+                                           shuffle=shuffle,
+                                           random_state=random_state)
+
+            if self.best_score is not None:
+                if (self.minimize and self.best_score > score) or (not self.minimize and self.best_score < score):
+                    self.best_score = score
+                    self.best_params = params_set
+            else:
+                self.best_score = score
+                self.best_params = params_set
 
 
 class PrunedGridSearchCV:
