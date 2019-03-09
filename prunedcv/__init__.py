@@ -6,10 +6,10 @@ import pandas
 
 class PrunedGridSearchCV:
 
-    def __init__(self, estimator, params_grid, n_splits, tolerance, splits_to_start_prunning=2, minimize=True):
+    def __init__(self, estimator, params_grid, cv, tolerance, splits_to_start_prunning=2, minimize=True):
         self.estimator = estimator
         self.params_grid = params_grid
-        self.n_splits = n_splits
+        self.cv = cv
         self.tolerance = tolerance
         self.splits_to_start_prunning = splits_to_start_prunning
         self.minimize = minimize
@@ -19,24 +19,21 @@ class PrunedGridSearchCV:
 
     def fit(self, x, y, metric='mse', shuffle=False, random_state=None):
 
-        pruner = PrunedCV(self.n_splits, self.tolerance, self.splits_to_start_prunning, self.minimize)
+        pruner = PrunedCV(self.cv, self.tolerance, self.splits_to_start_prunning, self.minimize)
 
         for params_set in self.params_grid_iterable:
             self.estimator.set_params(**params_set)
-            score = pruner.cross_validate_score(self.estimator,
-                                                x,
-                                                y,
-                                                metric=metric,
-                                                shuffle=shuffle,
-                                                random_state=random_state)
+            score = pruner.cross_val_score(self.estimator,
+                                           x,
+                                           y,
+                                           metric=metric,
+                                           shuffle=shuffle,
+                                           random_state=random_state)
 
             print(params_set, score)
 
             if self.best_score is not None:
-                if self.minimize and self.best_score > score:
-                    self.best_score = score
-                    self.best_params = params_set
-                elif not self.minimize and self.best_score < score:
+                if (self.minimize and self.best_score > score) or (not self.minimize and self.best_score < score):
                     self.best_score = score
                     self.best_params = params_set
             else:
@@ -46,14 +43,14 @@ class PrunedGridSearchCV:
 
 class PrunedCV:
 
-    def __init__(self, n_splits, tolerance, splits_to_start_pruning=2, minimize=True):
+    def __init__(self, cv, tolerance, splits_to_start_pruning=2, minimize=True):
 
-        if not isinstance(n_splits, int):
+        if not isinstance(cv, int):
             raise TypeError
-        if n_splits < 2:
+        if cv < 2:
             raise ValueError
 
-        self.n_splits = n_splits
+        self.cv = cv
         self.set_tolerance(tolerance)
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
@@ -72,7 +69,7 @@ class PrunedCV:
 
         self.tolerance = tolerance
 
-    def cross_validate_score(self, model, x, y, metric='mse', shuffle=False, random_state=None):
+    def cross_val_score(self, model, x, y, metric='mse', shuffle=False, random_state=None):
 
         if not isinstance(x, (numpy.ndarray, pandas.core.frame.DataFrame)):
             raise TypeError
@@ -83,7 +80,7 @@ class PrunedCV:
         if metric not in ['mse', 'mae']:
             raise ValueError
 
-        kf = KFold(n_splits=self.n_splits, shuffle=shuffle, random_state=random_state)
+        kf = KFold(n_splits=self.cv, shuffle=shuffle, random_state=random_state)
         for train_idx, test_idx in kf.split(x, y):
             if not self.prun:
 
@@ -129,14 +126,14 @@ class PrunedCV:
 
         self._decide_prun()
 
-        if len(self.current_splits_list_) == self.n_splits:
+        if len(self.current_splits_list_) == self.cv:
             self._serve_last_split()
 
     def _populate_best_splits_list_at_first_run(self, value):
 
         self.best_splits_list_.append(value)
 
-        if len(self.best_splits_list_) == self.n_splits:
+        if len(self.best_splits_list_) == self.cv:
             self.first_run_ = False
 
     def _decide_prun(self):
@@ -145,7 +142,7 @@ class PrunedCV:
         mean_best_splits = sum(self.best_splits_list_[:split_num]) / split_num
         mean_curr_splits = sum(self.current_splits_list_) / split_num
 
-        if self.n_splits > split_num >= self.splits_to_start_pruning:
+        if self.cv > split_num >= self.splits_to_start_pruning:
 
             if self._significantly_higher_value(mean_best_splits, mean_curr_splits, self.minimize, self.tolerance):
                 self.prun = True
@@ -160,12 +157,12 @@ class PrunedCV:
         return mean_best_splits * tolerance_scaler_if_min < mean_curr_splits * tolerance_scaler_if_max
 
     def _predict_pruned_score(self, mean_curr_splits, mean_best_splits):
-        return (mean_curr_splits / mean_best_splits) * (sum(self.best_splits_list_) / self.n_splits)
+        return (mean_curr_splits / mean_best_splits) * (sum(self.best_splits_list_) / self.cv)
 
     def _serve_last_split(self):
 
         if sum(self.best_splits_list_) > sum(self.current_splits_list_):
             self.best_splits_list_ = self.current_splits_list_
 
-        self.cross_val_score = sum(self.current_splits_list_) / self.n_splits
+        self.cross_val_score = sum(self.current_splits_list_) / self.cv
         self.current_splits_list_ = []

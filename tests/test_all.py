@@ -131,7 +131,7 @@ def test_prun_score_val_best():
 
     pruner.add_split_value_and_prun(1.1)
 
-    assert sum(pruner.best_splits_list_) / pruner.n_splits == 1.0
+    assert sum(pruner.best_splits_list_) / pruner.cv == 1.0
 
 
 def test_prun_pruned_cv_score():
@@ -153,50 +153,50 @@ def test_prun_3models():
     x = data['data']
     y = data['target']
 
-    pruner = PrunedCV(n_splits=8, tolerance=.1)
+    pruner = PrunedCV(cv=8, tolerance=.1)
 
     model1 = LGBMRegressor(max_depth=25)
     model2 = LGBMRegressor(max_depth=10)
     model3 = LGBMRegressor(max_depth=2)
 
-    score1 = pruner.cross_validate_score(model1, x, y, shuffle=True, random_state=42)
-    score2 = pruner.cross_validate_score(model2, x, y, shuffle=True, random_state=42)
-    score3 = pruner.cross_validate_score(model3, x, y, shuffle=True, random_state=42)
+    score1 = pruner.cross_val_score(model1, x, y, shuffle=True, random_state=42)
+    score2 = pruner.cross_val_score(model2, x, y, shuffle=True, random_state=42)
+    score3 = pruner.cross_val_score(model3, x, y, shuffle=True, random_state=42)
 
-    assert (sum(pruner.best_splits_list_) / pruner.n_splits == score2) and (score2 < score1) and (score2 < score3)
+    assert (sum(pruner.best_splits_list_) / pruner.cv == score2) and (score2 < score1) and (score2 < score3)
 
 
 def test_prun_cv_x():
 
     with pytest.raises(TypeError):
-        pruner = PrunedCV(n_splits=4, tolerance=.1)
+        pruner = PrunedCV(cv=4, tolerance=.1)
 
         model = LGBMRegressor()
         x = [1, 2, 3]
         y = np.array([1, 2, 3])
-        pruner.cross_validate_score(model, x, y)
+        pruner.cross_val_score(model, x, y)
 
 
 def test_prun_cv_y():
 
     with pytest.raises(TypeError):
-        pruner = PrunedCV(n_splits=4, tolerance=.1)
+        pruner = PrunedCV(cv=4, tolerance=.1)
 
         model = LGBMRegressor()
         y = [1, 2, 3]
         x = np.array([1, 2, 3])
-        pruner.cross_validate_score(model, x, y)
+        pruner.cross_val_score(model, x, y)
 
 
 def test_prun_cv_xy():
 
     with pytest.raises(TypeError):
-        pruner = PrunedCV(n_splits=4, tolerance=.1)
+        pruner = PrunedCV(cv=4, tolerance=.1)
 
         model = LGBMRegressor()
         y = [1, 2, 3]
         x = [1, 2, 3]
-        pruner.cross_validate_score(model, x, y)
+        pruner.cross_val_score(model, x, y)
 
 
 def test_prun_cv_x_df():
@@ -205,13 +205,13 @@ def test_prun_cv_x_df():
     x = pd.DataFrame(data['data'])
     y = data['target']
 
-    pruner = PrunedCV(n_splits=8, tolerance=.1)
+    pruner = PrunedCV(cv=8, tolerance=.1)
 
     model = LGBMRegressor()
 
-    pruner.cross_validate_score(model, x, y)
+    pruner.cross_val_score(model, x, y)
 
-    assert len(pruner.best_splits_list_) == pruner.n_splits
+    assert len(pruner.best_splits_list_) == pruner.cv
 
 
 def test_prun_cv_xy_df_ser():
@@ -220,13 +220,13 @@ def test_prun_cv_xy_df_ser():
     x = pd.DataFrame(data['data'])
     y = pd.Series(data['target'])
 
-    pruner = PrunedCV(n_splits=8, tolerance=.1)
+    pruner = PrunedCV(cv=8, tolerance=.1)
 
     model = LGBMRegressor()
 
-    pruner.cross_validate_score(model, x, y)
+    pruner.cross_val_score(model, x, y)
 
-    assert len(pruner.best_splits_list_) == pruner.n_splits
+    assert len(pruner.best_splits_list_) == pruner.cv
 
 
 def test_prun_cv_y_ser():
@@ -235,13 +235,13 @@ def test_prun_cv_y_ser():
     x = data['data']
     y = pd.Series(data['target'])
 
-    pruner = PrunedCV(n_splits=8, tolerance=.1)
+    pruner = PrunedCV(cv=8, tolerance=.1)
 
     model = LGBMRegressor()
 
-    pruner.cross_validate_score(model, x, y)
+    pruner.cross_val_score(model, x, y)
 
-    assert len(pruner.best_splits_list_) == pruner.n_splits
+    assert len(pruner.best_splits_list_) == pruner.cv
 
 
 def test_prun_set_tolerance_1():
@@ -270,7 +270,7 @@ def test_prun_cv_metric():
 
         model = LGBMRegressor()
 
-        pruner.cross_validate_score(model, x, y, metric='rmsle')
+        pruner.cross_val_score(model, x, y, metric='rmsle')
 
 
 def test_pruner_mae():
@@ -283,7 +283,7 @@ def test_pruner_mae():
 
     model = LGBMRegressor(objective='mae')
 
-    pruner.cross_validate_score(model, x, y, metric='mae')
+    pruner.cross_val_score(model, x, y, metric='mae')
 
 
 def test_pruner_higher_value1():
@@ -324,7 +324,7 @@ def test_pruner_pgs():
 
     params_grid = {'max_depth': [25, 10, 2]}
 
-    pgs = PrunedGridSearchCV(estimator=model, params_grid=params_grid, n_splits=8, tolerance=0.1)
+    pgs = PrunedGridSearchCV(estimator=model, params_grid=params_grid, cv=8, tolerance=0.1)
 
     pgs.fit(x, y, shuffle=True, random_state=42)
 
