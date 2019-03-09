@@ -36,7 +36,8 @@ class PrunedGridSearchCV:
         pruner = PrunedCV(self.cv,
                           self.tolerance,
                           self.splits_to_start_pruning,
-                          self.minimize)
+                          self.minimize,
+                          self.probabilistic_prun)
 
         for params_set in self.params_grid_iterable:
             self.estimator.set_params(**params_set)
@@ -156,8 +157,8 @@ class PrunedCV:
 
         if self.first_run_:
             self._populate_best_splits_list_at_first_run(value)
-
-        self._decide_prun()
+        else:
+            self._decide_prun()
 
         if len(self.current_splits_list_) == self.cv:
             self._serve_last_split()
@@ -189,6 +190,7 @@ class PrunedCV:
                                                              self.tolerance)
 
             if self.prun:
+                print('pruned at {} fold'.format(split_num))
                 self.cross_val_score_value = self._predict_pruned_score(mean_curr_splits,
                                                                         mean_best_splits)
                 self.current_splits_list_ = []

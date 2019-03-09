@@ -330,3 +330,30 @@ def test_pruner_pgs():
 
     assert pgs.best_params['max_depth'] == 10
 
+
+def test_prun_first_run_list_len_prob():
+    data = fetch_california_housing()
+    x = data['data']
+    y = data['target']
+
+    prun = PrunedCV(8, 0.0, probabilistic_prun=True)
+
+    model = LGBMRegressor(n_estimators=2)
+
+    prun.cross_val_score(model, x, y, random_state=42)
+
+    assert len(prun.best_splits_list_) == 8
+
+
+def test_prun_first_run_list_len():
+    data = fetch_california_housing()
+    x = data['data']
+    y = data['target']
+
+    prun = PrunedCV(8, 0.0)
+
+    model = LGBMRegressor(n_estimators=2)
+
+    prun.cross_val_score(model, x, y)
+
+    assert len(prun.best_splits_list_) == 8
