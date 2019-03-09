@@ -324,9 +324,14 @@ def test_pruner_pgs():
 
     params_grid = {'max_depth': [25, 10, 2]}
 
-    pgs = PrunedGridSearchCV(estimator=model, params_grid=params_grid, cv=8, tolerance=0.1)
+    pgs = PrunedGridSearchCV(estimator=model,
+                             params_grid=params_grid,
+                             cv=8,
+                             tolerance=0.1,
+                             shuffle=True,
+                             random_state=42)
 
-    pgs.fit(x, y, shuffle=True, random_state=42)
+    pgs.fit(x, y)
 
     assert pgs.best_params['max_depth'] == 10
 

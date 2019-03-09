@@ -4,34 +4,39 @@ import numpy
 import pandas
 
 
-class PrunedRandomSearchCV:
+class PrunedRandomizedSearchCV:
 
     def __init__(self,
                  estimator,
-                 params_grid,
+                 param_distributions,
+                 n_iter,
                  cv,
                  tolerance,
+                 scoring='mse',
                  splits_to_start_pruning=2,
                  minimize=True,
-                 probabilistic_prun=False):
+                 probabilistic_prun=False,
+                 shuffle=False,
+                 random_state=None):
 
         self.estimator = estimator
-        self.params_grid = params_grid
+        self.param_distributions = param_distributions
+        self.n_iter = n_iter
         self.cv = cv
         self.tolerance = tolerance
+        self.scoring=scoring
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
         self.probabilistic_prun = probabilistic_prun
-        self.params_grid_iterable = ParameterSampler(self.params_grid)
+        self.shuffle = shuffle
+        self.random_state=random_state
+        self.params_grid_iterable = ParameterSampler(param_distributions=self.param_distributions,
+                                                     n_iter=self.n_iter,
+                                                     random_state=self.random_state)
         self.best_params = None
         self.best_score = None
 
-    def fit(self,
-            x,
-            y,
-            metric='mse',
-            shuffle=False,
-            random_state=None):
+    def fit(self, x, y):
 
         pruner = PrunedCV(self.cv,
                           self.tolerance,
@@ -44,9 +49,9 @@ class PrunedRandomSearchCV:
             score = pruner.cross_val_score(self.estimator,
                                            x,
                                            y,
-                                           metric=metric,
-                                           shuffle=shuffle,
-                                           random_state=random_state)
+                                           metric=self.scoring,
+                                           shuffle=self.shuffle,
+                                           random_state=self.random_state)
 
             if self.best_score is not None:
                 if (self.minimize and self.best_score > score) or (not self.minimize and self.best_score < score):
@@ -64,27 +69,28 @@ class PrunedGridSearchCV:
                  params_grid,
                  cv,
                  tolerance,
+                 scoring='mse',
                  splits_to_start_pruning=2,
                  minimize=True,
-                 probabilistic_prun=False):
+                 probabilistic_prun=False,
+                 shuffle=False,
+                 random_state=None):
 
         self.estimator = estimator
         self.params_grid = params_grid
         self.cv = cv
         self.tolerance = tolerance
+        self.scoring = scoring
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
         self.probabilistic_prun = probabilistic_prun
+        self.shuffle = shuffle
+        self.random_state=random_state
         self.params_grid_iterable = ParameterGrid(self.params_grid)
         self.best_params = None
         self.best_score = None
 
-    def fit(self,
-            x,
-            y,
-            metric='mse',
-            shuffle=False,
-            random_state=None):
+    def fit(self, x, y):
 
         pruner = PrunedCV(self.cv,
                           self.tolerance,
@@ -97,9 +103,9 @@ class PrunedGridSearchCV:
             score = pruner.cross_val_score(self.estimator,
                                            x,
                                            y,
-                                           metric=metric,
-                                           shuffle=shuffle,
-                                           random_state=random_state)
+                                           metric=self.scoring,
+                                           shuffle=self.shuffle,
+                                           random_state=self.random_state)
 
             if self.best_score is not None:
                 if (self.minimize and self.best_score > score) or (not self.minimize and self.best_score < score):

@@ -1,1 +1,1 @@
-from .src import PrunedGridSearchCV, PrunedCV
+from .src import PrunedGridSearchCV, PrunedCV, PrunedRandomizedSearchCV
