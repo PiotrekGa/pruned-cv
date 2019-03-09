@@ -11,14 +11,16 @@ class PrunedGridSearchCV:
                  params_grid,
                  cv,
                  tolerance,
-                 splits_to_start_prunning=2,
-                 minimize=True):
+                 splits_to_start_pruning=2,
+                 minimize=True,
+                 probabilistic_prun=False):
         self.estimator = estimator
         self.params_grid = params_grid
         self.cv = cv
         self.tolerance = tolerance
-        self.splits_to_start_prunning = splits_to_start_prunning
+        self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
+        self.probabilistic_prun=probabilistic_prun
         self.params_grid_iterable = ParameterGrid(self.params_grid)
         self.best_params = None
         self.best_score = None
@@ -32,7 +34,7 @@ class PrunedGridSearchCV:
 
         pruner = PrunedCV(self.cv,
                           self.tolerance,
-                          self.splits_to_start_prunning,
+                          self.splits_to_start_pruning,
                           self.minimize)
 
         for params_set in self.params_grid_iterable:
@@ -61,7 +63,8 @@ class PrunedCV:
                  cv,
                  tolerance,
                  splits_to_start_pruning=2,
-                 minimize=True):
+                 minimize=True,
+                 probabilistic_prun=False):
 
         if not isinstance(cv, int):
             raise TypeError
@@ -72,8 +75,9 @@ class PrunedCV:
         self.set_tolerance(tolerance)
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
+        self.probabilistic_prun = probabilistic_prun
         self.prun = False
-        self.cross_val_score = None
+        self.cross_val_score_value = None
         self.current_splits_list_ = []
         self.best_splits_list_ = []
         self.first_run_ = True
@@ -134,7 +138,7 @@ class PrunedCV:
                     self.add_split_value_and_prun(metrics.mean_absolute_error(y_test, y_test_teor))
 
         self.prun = False
-        return self.cross_val_score
+        return self.cross_val_score_value
 
     def add_split_value_and_prun(self, value):
 
@@ -172,11 +176,13 @@ class PrunedCV:
 
         if self.cv > split_num >= self.splits_to_start_pruning:
 
-            if self._significantly_higher_value(mean_best_splits, mean_curr_splits, self.minimize, self.tolerance):
-                self.prun = True
-                self.cross_val_score = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
-                self.current_splits_list_ = []
-                print('trial pruned at {} fold'.format(split_num))
+            if self.probabilistic_prun:
+                raise NotImplementedError
+            else:
+                if self._significantly_higher_value(mean_best_splits, mean_curr_splits, self.minimize, self.tolerance):
+                    self.prun = True
+                    self.cross_val_score_value = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
+                    self.current_splits_list_ = []
 
     @staticmethod
     def _significantly_higher_value(mean_best_splits,
@@ -197,5 +203,5 @@ class PrunedCV:
         if sum(self.best_splits_list_) > sum(self.current_splits_list_):
             self.best_splits_list_ = self.current_splits_list_
 
-        self.cross_val_score = sum(self.current_splits_list_) / self.cv
+        self.cross_val_score_value = sum(self.current_splits_list_) / self.cv
         self.current_splits_list_ = []

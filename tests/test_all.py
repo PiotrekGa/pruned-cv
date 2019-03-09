@@ -95,7 +95,7 @@ def test_prun_score_val_constant():
     for i in range(8):
         pruner.add_split_value_and_prun(1.0)
 
-    assert pruner.cross_val_score == 1.0
+    assert pruner.cross_val_score_value == 1.0
 
 
 def test_prun_score_val_dec():
@@ -107,7 +107,7 @@ def test_prun_score_val_dec():
 
     pruner.add_split_value_and_prun(.9)
 
-    assert pruner.cross_val_score < 1.0
+    assert pruner.cross_val_score_value < 1.0
 
 
 def test_prun_score_val_inc():
@@ -119,7 +119,7 @@ def test_prun_score_val_inc():
 
     pruner.add_split_value_and_prun(1.1)
 
-    assert pruner.cross_val_score > 1.0
+    assert pruner.cross_val_score_value > 1.0
 
 
 def test_prun_score_val_best():
@@ -144,7 +144,7 @@ def test_prun_pruned_cv_score():
     for i in range(2):
         pruner.add_split_value_and_prun(2.0)
 
-    assert pruner.cross_val_score == 2.0
+    assert pruner.cross_val_score_value == 2.0
 
 
 def test_prun_3models():
@@ -329,3 +329,17 @@ def test_pruner_pgs():
     pgs.fit(x, y, shuffle=True, random_state=42)
 
     assert pgs.best_params['max_depth'] == 10
+
+
+def test_prun_prob_not_implemented():
+
+    data = fetch_california_housing()
+    x = data['data']
+    y = data['target']
+
+    model = LGBMRegressor()
+
+    prun = PrunedCV(8, 0.1, probabilistic_prun=True)
+
+    with pytest.raises(NotImplementedError):
+        prun.cross_val_score(model, x, y)
