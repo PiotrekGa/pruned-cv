@@ -159,9 +159,9 @@ def test_prun_3models():
     model2 = LGBMRegressor(max_depth=10)
     model3 = LGBMRegressor(max_depth=2)
 
-    score1 = pruner.cross_validate_score(model1, x, y, shuffle=True)
-    score2 = pruner.cross_validate_score(model2, x, y, shuffle=True)
-    score3 = pruner.cross_validate_score(model3, x, y, shuffle=True)
+    score1 = pruner.cross_validate_score(model1, x, y, shuffle=True, random_state=42)
+    score2 = pruner.cross_validate_score(model2, x, y, shuffle=True, random_state=42)
+    score3 = pruner.cross_validate_score(model3, x, y, shuffle=True, random_state=42)
 
     assert (sum(pruner.best_splits_list_) / pruner.n_splits == score2) and (score2 < score1) and (score2 < score3)
 

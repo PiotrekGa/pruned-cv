@@ -17,7 +17,7 @@ class PrunedGridSearchCV:
         self.best_params = None
         self.best_score = None
 
-    def fit(self, x, y, metric='mse', shuffle=False, random_state=42):
+    def fit(self, x, y, metric='mse', shuffle=False, random_state=None):
 
         pruner = PrunedCV(self.n_splits, self.tolerance, self.splits_to_start_prunning, self.minimize)
 
@@ -72,7 +72,7 @@ class PrunedCV:
 
         self.tolerance = tolerance
 
-    def cross_validate_score(self, model, x, y, metric='mse', shuffle=False, random_state=42):
+    def cross_validate_score(self, model, x, y, metric='mse', shuffle=False, random_state=None):
 
         if not isinstance(x, (numpy.ndarray, pandas.core.frame.DataFrame)):
             raise TypeError
