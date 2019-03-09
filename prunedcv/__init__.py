@@ -1,7 +1,47 @@
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, ParameterGrid
 from sklearn import metrics
 import numpy
 import pandas
+
+
+class PrunedGridSearchCV:
+
+    def __init__(self, estimator, params_grid, n_splits, tolerance, splits_to_start_prunning=2, minimize=True):
+        self.estimator = estimator
+        self.params_grid = params_grid
+        self.n_splits = n_splits
+        self.tolerance = tolerance
+        self.splits_to_start_prunning = splits_to_start_prunning
+        self.minimize = minimize
+        self.params_grid_iterable = ParameterGrid(self.params_grid)
+        self.best_params = None
+        self.best_score = None
+
+    def fit(self, x, y, metric='mse', shuffle=False, random_state=42):
+
+        pruner = PrunerCV(self.n_splits, self.tolerance, self.splits_to_start_prunning, self.minimize)
+
+        for params_set in self.params_grid_iterable:
+            self.estimator.set_params(**params_set)
+            score = pruner.cross_validate_score(self.estimator,
+                                                x,
+                                                y,
+                                                metric=metric,
+                                                shuffle=shuffle,
+                                                random_state=random_state)
+
+            print(params_set, score)
+
+            if self.best_score is not None:
+                if self.minimize and self.best_score > score:
+                    self.best_score = score
+                    self.best_params = params_set
+                elif not self.minimize and self.best_score < score:
+                    self.best_score = score
+                    self.best_params = params_set
+            else:
+                self.best_score = score
+                self.best_params = params_set
 
 
 class PrunerCV:
