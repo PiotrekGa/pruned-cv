@@ -6,7 +6,13 @@ import pandas
 
 class PrunedGridSearchCV:
 
-    def __init__(self, estimator, params_grid, cv, tolerance, splits_to_start_prunning=2, minimize=True):
+    def __init__(self,
+                 estimator,
+                 params_grid,
+                 cv,
+                 tolerance,
+                 splits_to_start_prunning=2,
+                 minimize=True):
         self.estimator = estimator
         self.params_grid = params_grid
         self.cv = cv
@@ -17,9 +23,17 @@ class PrunedGridSearchCV:
         self.best_params = None
         self.best_score = None
 
-    def fit(self, x, y, metric='mse', shuffle=False, random_state=None):
+    def fit(self,
+            x,
+            y,
+            metric='mse',
+            shuffle=False,
+            random_state=None):
 
-        pruner = PrunedCV(self.cv, self.tolerance, self.splits_to_start_prunning, self.minimize)
+        pruner = PrunedCV(self.cv,
+                          self.tolerance,
+                          self.splits_to_start_prunning,
+                          self.minimize)
 
         for params_set in self.params_grid_iterable:
             self.estimator.set_params(**params_set)
@@ -43,7 +57,11 @@ class PrunedGridSearchCV:
 
 class PrunedCV:
 
-    def __init__(self, cv, tolerance, splits_to_start_pruning=2, minimize=True):
+    def __init__(self,
+                 cv,
+                 tolerance,
+                 splits_to_start_pruning=2,
+                 minimize=True):
 
         if not isinstance(cv, int):
             raise TypeError
@@ -60,7 +78,8 @@ class PrunedCV:
         self.best_splits_list_ = []
         self.first_run_ = True
         
-    def set_tolerance(self, tolerance):
+    def set_tolerance(self,
+                      tolerance):
 
         if not isinstance(tolerance, float):
             raise TypeError
@@ -69,7 +88,13 @@ class PrunedCV:
 
         self.tolerance = tolerance
 
-    def cross_val_score(self, model, x, y, metric='mse', shuffle=False, random_state=None):
+    def cross_val_score(self,
+                        model,
+                        x,
+                        y,
+                        metric='mse',
+                        shuffle=False,
+                        random_state=None):
 
         if not isinstance(x, (numpy.ndarray, pandas.core.frame.DataFrame)):
             raise TypeError
@@ -77,10 +102,13 @@ class PrunedCV:
         if not isinstance(y, (numpy.ndarray, pandas.core.series.Series)):
             raise TypeError
 
-        if metric not in ['mse', 'mae']:
+        if metric not in ['mse',
+                          'mae']:
             raise ValueError
 
-        kf = KFold(n_splits=self.cv, shuffle=shuffle, random_state=random_state)
+        kf = KFold(n_splits=self.cv,
+                   shuffle=shuffle,
+                   random_state=random_state)
         for train_idx, test_idx in kf.split(x, y):
             if not self.prun:
 
@@ -151,12 +179,17 @@ class PrunedCV:
                 print('trial pruned at {} fold'.format(split_num))
 
     @staticmethod
-    def _significantly_higher_value(mean_best_splits, mean_curr_splits, minimize, tolerance):
+    def _significantly_higher_value(mean_best_splits,
+                                    mean_curr_splits,
+                                    minimize,
+                                    tolerance):
         tolerance_scaler_if_min = 1 + minimize * tolerance
         tolerance_scaler_if_max = 1 + (1 - minimize) * tolerance
         return mean_best_splits * tolerance_scaler_if_min < mean_curr_splits * tolerance_scaler_if_max
 
-    def _predict_pruned_score(self, mean_curr_splits, mean_best_splits):
+    def _predict_pruned_score(self,
+                              mean_curr_splits,
+                              mean_best_splits):
         return (mean_curr_splits / mean_best_splits) * (sum(self.best_splits_list_) / self.cv)
 
     def _serve_last_split(self):
