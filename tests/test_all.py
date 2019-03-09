@@ -1,4 +1,4 @@
-from prunedcv import PrunedCV
+from prunedcv import PrunedCV, PrunedGridSearchCV
 from sklearn.datasets import fetch_california_housing, load_iris
 from lightgbm import LGBMRegressor, LGBMClassifier
 import numpy as np
@@ -312,3 +312,20 @@ def test_pruner_higher_value4():
     pruner = PrunedCV(4, 0.1)
 
     assert pruner._significantly_higher_value(-1.0, -0.8, False, .1)
+
+
+def test_pruner_pgs():
+
+    data = fetch_california_housing()
+    x = data['data']
+    y = data['target']
+
+    model = LGBMRegressor()
+
+    params_grid = {'max_depth': [25, 10, 2]}
+
+    pgs = PrunedGridSearchCV(estimator=model, params_grid=params_grid, n_splits=8, tolerance=0.1)
+
+    pgs.fit(x, y, shuffle=True, random_state=42)
+
+    assert pgs.best_params['max_depth'] == 10
