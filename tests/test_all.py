@@ -330,16 +330,3 @@ def test_pruner_pgs():
 
     assert pgs.best_params['max_depth'] == 10
 
-
-def test_prun_prob_not_implemented():
-
-    data = fetch_california_housing()
-    x = data['data']
-    y = data['target']
-
-    model = LGBMRegressor()
-
-    prun = PrunedCV(8, 0.1, probabilistic_prun=True)
-
-    with pytest.raises(NotImplementedError):
-        prun.cross_val_score(model, x, y)

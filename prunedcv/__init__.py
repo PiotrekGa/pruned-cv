@@ -14,6 +14,7 @@ class PrunedGridSearchCV:
                  splits_to_start_pruning=2,
                  minimize=True,
                  probabilistic_prun=False):
+
         self.estimator = estimator
         self.params_grid = params_grid
         self.cv = cv
@@ -177,12 +178,44 @@ class PrunedCV:
         if self.cv > split_num >= self.splits_to_start_pruning:
 
             if self.probabilistic_prun:
-                raise NotImplementedError
+                self.prun = self._probabilistic_prun_decision(split_num,
+                                                              mean_best_splits,
+                                                              mean_curr_splits)
+
             else:
-                if self._significantly_higher_value(mean_best_splits, mean_curr_splits, self.minimize, self.tolerance):
-                    self.prun = True
-                    self.cross_val_score_value = self._predict_pruned_score(mean_curr_splits, mean_best_splits)
-                    self.current_splits_list_ = []
+                self.prun = self._significantly_higher_value(mean_best_splits,
+                                                             mean_curr_splits,
+                                                             self.minimize,
+                                                             self.tolerance)
+
+            if self.prun:
+                self.cross_val_score_value = self._predict_pruned_score(mean_curr_splits,
+                                                                        mean_best_splits)
+                self.current_splits_list_ = []
+
+    def _probabilistic_prun_decision(self, split_num,
+                                     mean_best_splits,
+                                     mean_curr_splits):
+
+        if self.minimize and mean_curr_splits < mean_best_splits:
+            return False
+
+        elif not self.minimize and mean_curr_splits > mean_best_splits:
+            return False
+
+        else:
+            alpha = sum([i[0] < i[1] for i in zip(self.best_splits_list_[:split_num],
+                                                  self.current_splits_list_)])
+
+            beta = sum([i[0] > i[1] for i in zip(self.best_splits_list_[:split_num],
+                                                 self.current_splits_list_)])
+
+            random_value = numpy.random.beta(1 + alpha, 1 + beta)
+
+            if self.minimize:
+                return random_value > 0.5
+            else:
+                return random_value < 0.5
 
     @staticmethod
     def _significantly_higher_value(mean_best_splits,
