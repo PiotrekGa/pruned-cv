@@ -48,8 +48,6 @@ class PrunedGridSearchCV:
                                            shuffle=shuffle,
                                            random_state=random_state)
 
-            print(params_set, score)
-
             if self.best_score is not None:
                 if (self.minimize and self.best_score > score) or (not self.minimize and self.best_score < score):
                     self.best_score = score
@@ -190,7 +188,6 @@ class PrunedCV:
                                                              self.tolerance)
 
             if self.prun:
-                print('pruned at {} fold'.format(split_num))
                 self.cross_val_score_value = self._predict_pruned_score(mean_curr_splits,
                                                                         mean_best_splits)
                 self.current_splits_list_ = []
