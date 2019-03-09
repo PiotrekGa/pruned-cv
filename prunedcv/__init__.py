@@ -19,7 +19,7 @@ class PrunedGridSearchCV:
 
     def fit(self, x, y, metric='mse', shuffle=False, random_state=42):
 
-        pruner = PrunerCV(self.n_splits, self.tolerance, self.splits_to_start_prunning, self.minimize)
+        pruner = PrunedCV(self.n_splits, self.tolerance, self.splits_to_start_prunning, self.minimize)
 
         for params_set in self.params_grid_iterable:
             self.estimator.set_params(**params_set)
@@ -44,7 +44,7 @@ class PrunedGridSearchCV:
                 self.best_params = params_set
 
 
-class PrunerCV:
+class PrunedCV:
 
     def __init__(self, n_splits, tolerance, splits_to_start_pruning=2, minimize=True):
 
