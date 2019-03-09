@@ -5,7 +5,8 @@ The package implements pruned cross-validation technique, which verifies whether
 It's components may be used as a standalone methods or as a part of hyperparameter optimization frameworks like 
 Hyperopt or Optuna.
 
-It proved to be over two times faster than Scikit-Learn GridSearchCV yielding the same results.
+It proved to be over two and two and a half times faster than Scikit-Learn GridSearchCV and RandomizedSearchCV respectively
+ yielding the same results.
 
 ## Motivation
 
@@ -37,6 +38,14 @@ and run:
 
 You can find example notebooks in examples section of the repository.
 
-#### GridSearchCV benchmark
+## Benchmarks
+
+You can find benchmarks in examples section.
+
+#### Grid Search CV
 
 https://github.com.PiotrekGa/pruned-cv/examples/GridSearchCV_Benchmark.ipynb
+
+#### Randmized Search CV
+
+https://github.com.PiotrekGa/pruned-cv/examples/RandomizedSearchCV_Benchmark.ipynb
