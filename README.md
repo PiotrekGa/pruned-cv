@@ -38,6 +38,10 @@ and run:
 
 You can find example notebooks in examples section of the repository.
 
+#### Usage with Optuna
+
+https://github.com/PiotrekGa/pruned-cv/blob/master/examples/Usage_with_Optuna.ipynb
+
 ## Benchmarks
 
 You can find benchmarks in examples section.
