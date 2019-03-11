@@ -44,8 +44,8 @@ You can find benchmarks in examples section.
 
 #### Grid Search CV
 
-https://github.com.PiotrekGa/pruned-cv/examples/GridSearchCV_Benchmark.ipynb
+https://github.com/PiotrekGa/pruned-cv/blob/master/examples/GridSearchCV_Benchmark.ipynb
 
 #### Randmized Search CV
 
-https://github.com.PiotrekGa/pruned-cv/examples/RandomizedSearchCV_Benchmark.ipynb
+https://github.com/PiotrekGa/pruned-cv/blob/master/examples/RandomizedSearchCV_Benchmark.ipynb
