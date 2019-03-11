@@ -271,9 +271,9 @@ class PrunedCV:
             random_value = numpy.random.beta(1 + alpha, 1 + beta)
 
             if self.minimize:
-                return random_value > 0.5
+                return random_value * (len(self.best_splits_list_) - self.splits_to_start_pruning - 1) > 0.5
             else:
-                return random_value < 0.5
+                return random_value < 0.5 * (len(self.best_splits_list_) - self.splits_to_start_pruning - 1)
 
     @staticmethod
     def _significantly_higher_value(mean_best_splits,
