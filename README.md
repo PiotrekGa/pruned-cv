@@ -21,7 +21,7 @@ Gradient Boosting Algorithms. It speeds the search process greatly but the issue
 the trials based on a single validation sample. With relatively small datasets the model's quality 
 variance may be high and lead to suboptimal hyperparameters choices.
 
-Pruned-cv is a compromise between brut-force methods like GridSearch and more elaborate, but reluctant ones 
+Pruned-cv is a compromise between brut-force methods like GridSearch and more elaborate, but vulnerable ones 
 like Optuna's pruning.
 
 You can see examples of correlations between cumulative folds scores in this notebook:
