@@ -24,6 +24,9 @@ variance may be high and lead to suboptimal hyperparameters choices.
 Pruned-cv is a compromise between brut-force methods like GridSearch and more elaborate, but reluctant ones 
 like Optuna's pruning.
 
+You can see examples of correlations between cumulative folds scores in this notebook:
+https://github.com/PiotrekGa/pruned-cv/blob/master/examples/Correlations_between_folds.ipynb
+
 ## Installation
 
 The package works with Python 3. To install it clone the repository:
