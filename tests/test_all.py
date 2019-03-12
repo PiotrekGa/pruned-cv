@@ -341,7 +341,7 @@ def test_prun_first_run_list_len_prob():
     x = data['data']
     y = data['target']
 
-    prun = PrunedCV(8, 0.0, probabilistic_prun=True, probability_modifier=2)
+    prun = PrunedCV(8, probabilistic_prun=True, probability_modifier=2)
 
     model = LGBMRegressor(n_estimators=2)
 
@@ -366,7 +366,7 @@ def test_prun_first_run_list_len():
 
 def test_prun_prob_tolerance():
 
-    prun = PrunedCV(8, 0.0, probabilistic_prun=True, probability_modifier=1.0)
+    prun = PrunedCV(8, probabilistic_prun=True, probability_modifier=1.0)
 
     assert prun.probability_modifier == 1.0
 
@@ -374,40 +374,39 @@ def test_prun_prob_tolerance():
 def test_prun_prob_tolerance():
 
     with pytest.raises(ValueError):
-        prun = PrunedCV(8, 0.1, probabilistic_prun=True, probability_modifier=0.5)
+        prun = PrunedCV(8, probabilistic_prun=True, probability_modifier=0.5)
 
 
 def test_prun_prob_tolerance():
-    prun = PrunedCV(8, 0.1, probabilistic_prun=True, splits_to_start_pruning=2, probability_modifier='auto')
+    prun = PrunedCV(8, probabilistic_prun=True, splits_to_start_pruning=2, probability_modifier='auto')
     assert prun.probability_modifier_value == 5
 
 
 def test_probability_modifier_value_func():
-    prun = PrunedCV(8, 0.1, probabilistic_prun=True, splits_to_start_pruning=3, probability_modifier=3)
+    prun = PrunedCV(8, probabilistic_prun=True, splits_to_start_pruning=3, probability_modifier=3)
     assert prun.probability_modifier_value == 3
 
 
 def test_prun_probability_prun_decision_output1():
-    prun = PrunedCV(8, 0.1, probabilistic_prun=True, splits_to_start_pruning=2, probability_modifier='auto')
+    prun = PrunedCV(8, probabilistic_prun=True, splits_to_start_pruning=2, probability_modifier='auto')
 
     assert not prun._probability_prun_decision_output(True, 0.04, 5)
 
 
 def test_prun_probability_prun_decision_output2():
-    prun = PrunedCV(8, 0.1, probabilistic_prun=True, splits_to_start_pruning=2, probability_modifier='auto')
+    prun = PrunedCV(8, probabilistic_prun=True, splits_to_start_pruning=2, probability_modifier='auto')
 
     assert prun._probability_prun_decision_output(True, 0.8, 1)
 
 
 def test_prun_probability_prun_decision_output3():
-    prun = PrunedCV(8, 0.1, probabilistic_prun=True, probability_modifier=5)
+    prun = PrunedCV(8, probabilistic_prun=True, probability_modifier=5)
 
     assert prun._probability_prun_decision_output(True, 0.8, 1)
 
 
 def test_prun_probability_prun_decision_output4():
     prun = PrunedCV(8,
-                    0.1,
                     probabilistic_prun=True,
                     splits_to_start_pruning=2,
                     minimize=False,
@@ -418,7 +417,6 @@ def test_prun_probability_prun_decision_output4():
 
 def test_prun_probability_prun_decision_output5():
     prun = PrunedCV(8,
-                    0.1,
                     probabilistic_prun=True,
                     splits_to_start_pruning=2,
                     minimize=False,
@@ -428,6 +426,6 @@ def test_prun_probability_prun_decision_output5():
 
 
 def test_prun_probability_prun_decision_output6():
-    prun = PrunedCV(8, 0.1, probabilistic_prun=True, minimize=False, probability_modifier=5)
+    prun = PrunedCV(8, probabilistic_prun=True, minimize=False, probability_modifier=5)
 
     assert prun._probability_prun_decision_output(True, 0.8, 1)
