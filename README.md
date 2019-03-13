@@ -45,6 +45,10 @@ You can find example notebooks in examples section of the repository.
 
 https://github.com/PiotrekGa/pruned-cv/blob/master/examples/Usage_with_Optuna.ipynb
 
+#### Usage with Hyperopt
+
+https://github.com/PiotrekGa/pruned-cv/blob/master/examples/Usage_with_Hyperopt.ipynb
+
 ## Benchmarks
 
 You can find benchmarks in examples section.
