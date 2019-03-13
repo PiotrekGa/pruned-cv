@@ -170,7 +170,7 @@ class PrunedCV:
                                     splits_to_start_pruning):
 
         if probability_modifier == 'auto':
-            return cv - splits_to_start_pruning - 1
+            return cv - splits_to_start_pruning
         else:
             return probability_modifier
 

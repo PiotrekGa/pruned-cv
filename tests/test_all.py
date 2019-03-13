@@ -379,7 +379,7 @@ def test_prun_prob_tolerance():
 
 def test_prun_prob_tolerance():
     prun = PrunedCV(8, probabilistic_prun=True, splits_to_start_pruning=2, probability_modifier='auto')
-    assert prun.probability_modifier_value == 5
+    assert prun.probability_modifier_value == 6
 
 
 def test_probability_modifier_value_func():
