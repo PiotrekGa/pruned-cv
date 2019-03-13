@@ -11,9 +11,9 @@ def test_pruner_prun_yes():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(6):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
-    pruner.add_split_value_and_prun(10000.0)
+    pruner._add_split_value_and_prun(10000.0)
 
     assert pruner.prun
 
@@ -23,10 +23,10 @@ def test_pruner_prun_no():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(4):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
     for i in range(3):
-        pruner.add_split_value_and_prun(.6)
+        pruner._add_split_value_and_prun(.6)
 
     assert not pruner.prun
 
@@ -36,13 +36,13 @@ def test_pruner_prun_back():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(4):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
     for i in range(2):
-        pruner.add_split_value_and_prun(10000.0)
+        pruner._add_split_value_and_prun(10000.0)
 
     for i in range(3):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
     assert not pruner.prun
 
@@ -52,7 +52,7 @@ def test_prun_first_run():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(4):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
     assert pruner.best_splits_list_ == [1.0, 1.0, 1.0, 1.0]
 
@@ -62,7 +62,7 @@ def test_prun_first_run_check():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(4):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
     assert not pruner.first_run_
 
@@ -71,21 +71,21 @@ def test_prun_folds_int():
 
     with pytest.raises(TypeError):
         pruner = PrunedCV(1.1, 0.1)
-        pruner.add_split_value_and_prun(1)
+        pruner._add_split_value_and_prun(1)
 
 
 def test_prun_folds_num():
 
     with pytest.raises(ValueError):
         pruner = PrunedCV(1, 0.1)
-        pruner.add_split_value_and_prun(1)
+        pruner._add_split_value_and_prun(1)
 
 
 def test_prun_vals_type():
 
     with pytest.raises(TypeError):
         pruner = PrunedCV(4, 0.1)
-        pruner.add_split_value_and_prun(1)
+        pruner._add_split_value_and_prun(1)
 
 
 def test_prun_score_val_constant():
@@ -93,7 +93,7 @@ def test_prun_score_val_constant():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(8):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
     assert pruner.cross_val_score_value == 1.0
 
@@ -103,9 +103,9 @@ def test_prun_score_val_dec():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(7):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
-    pruner.add_split_value_and_prun(.9)
+    pruner._add_split_value_and_prun(.9)
 
     assert pruner.cross_val_score_value < 1.0
 
@@ -115,9 +115,9 @@ def test_prun_score_val_inc():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(7):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
-    pruner.add_split_value_and_prun(1.1)
+    pruner._add_split_value_and_prun(1.1)
 
     assert pruner.cross_val_score_value > 1.0
 
@@ -127,9 +127,9 @@ def test_prun_score_val_best():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(7):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
-    pruner.add_split_value_and_prun(1.1)
+    pruner._add_split_value_and_prun(1.1)
 
     assert sum(pruner.best_splits_list_) / pruner.cv == 1.0
 
@@ -139,10 +139,10 @@ def test_prun_pruned_cv_score():
     pruner = PrunedCV(4, 0.1)
 
     for i in range(4):
-        pruner.add_split_value_and_prun(1.0)
+        pruner._add_split_value_and_prun(1.0)
 
     for i in range(2):
-        pruner.add_split_value_and_prun(2.0)
+        pruner._add_split_value_and_prun(2.0)
 
     assert pruner.cross_val_score_value == 2.0
 

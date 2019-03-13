@@ -215,14 +215,14 @@ class PrunedCV:
                 y_test_teor = model.predict(x_test)
 
                 if metric == 'mse':
-                    self.add_split_value_and_prun(metrics.mean_squared_error(y_test, y_test_teor))
+                    self._add_split_value_and_prun(metrics.mean_squared_error(y_test, y_test_teor))
                 elif metric == 'mae':
-                    self.add_split_value_and_prun(metrics.mean_absolute_error(y_test, y_test_teor))
+                    self._add_split_value_and_prun(metrics.mean_absolute_error(y_test, y_test_teor))
 
         self.prun = False
         return self.cross_val_score_value
 
-    def add_split_value_and_prun(self, value):
+    def _add_split_value_and_prun(self, value):
 
         if not isinstance(value, float):
             raise TypeError
