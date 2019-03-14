@@ -6,6 +6,79 @@ import pandas
 
 class PrunedRandomizedSearchCV:
 
+    """PrunedRandomizedSearchCV is a pruned version of scikit-learn RandomizedSearchCV.
+
+    It applies pruning methodology by using PrunedCV.
+
+    Args:
+        estimator:
+            An estimator to calculate cross-validated score
+        param_distributions:
+            A distribution space of hyperparameters for sampling.
+            Please use distributions available in
+            scipy.stats.distributions module
+        n_iter:
+            Number of hyperparameter samples to be evaluated
+            with cross-validation
+        cv:
+            Number of folds to be created for cross-validation
+        tolerance:
+            Default = 0.1.
+            If probabilistic_prun=False the value creates boundary
+            around the best score.
+            If ongoing scores are outside the boundary,
+            the trial is pruned.
+            If probabilistic_prun=True, the value is ignored.
+        scoring:
+            Default = 'mse'
+            Metric from scikit-learn metrics to be optimized.
+        splits_to_start_pruning:
+            Default = 2
+            The fold at which pruning may be first applied.
+        minimize:
+            Default = True
+            The direction of the optimization.
+        probabilistic_prun:
+            Default = False
+            If False, deterministic pruning with tolerance parameter is used.
+            If True, Beta distribution like sampling is used.
+            You may want to keep it False with PrunedRandomizedSearchCV.
+        probability_modifier:
+            Default - 'auto'
+            Limits the probability of pruning a trial.
+        shuffle:
+            Default = False
+            If True, shuffle the data before splitting them into folds.
+        random_state:
+            Default = None
+            If any integer value, creates a seed for random number generation.
+
+        Usage example:
+
+            from scipy.stats.distributions import uniform, randint
+            from sklearn.datasets import fetch_california_housing
+            from prunedcv import PrunedRandomizedSearchCV
+            from lightgbm import LGBMRegressor
+
+            data = fetch_california_housing()
+            x = data['data']
+            y = data['target']
+
+            model = LGBMRegressor()
+            params_grid = {'n_estimators': randint(2,100),
+                            'max_depth': randint(2,200),
+                            'learning_rate': uniform(.001, .2)}
+
+            prs = PrunedRandomizedSearchCV(model,
+                                           param_distributions=params_grid,
+                                           n_iter=100,
+                                           cv=12,
+                                           tolerance=0.1,
+                                           random_state=42)
+            prs.fit(x, y)
+            prs.best_params
+            """
+
     def __init__(self,
                  estimator,
                  param_distributions,
@@ -40,6 +113,15 @@ class PrunedRandomizedSearchCV:
 
     def fit(self, x, y):
 
+        """Executes search within the hyperparameter space.
+
+        Args:
+            x:
+                numpy ndarray or pandas DataFrame
+            y:
+                numpy ndarray or pandas Series
+        """
+
         pruner = PrunedCV(self.cv,
                           self.tolerance,
                           self.splits_to_start_pruning,
@@ -65,6 +147,71 @@ class PrunedRandomizedSearchCV:
 
 
 class PrunedGridSearchCV:
+
+    """PrunedGridSearchCV is a pruned version of scikit-learn GridSearchCV.
+
+    It applies pruning methodology by using PrunedCV.
+
+    Args:
+        estimator:
+            An estimator to calculate cross-validated score
+        params_grid:
+            Dict of hypermarameters to be scored.
+        cv:
+            Number of folds to be created for cross-validation
+        tolerance:
+            Default = 0.1.
+            If probabilistic_prun=False the value creates boundary
+            around the best score.
+            If ongoing scores are outside the boundary,
+            the trial is pruned.
+            If probabilistic_prun=True, the value is ignored.
+        scoring:
+            Default = 'mse'
+            Metric from scikit-learn metrics to be optimized.
+        splits_to_start_pruning:
+            Default = 2
+            The fold at which pruning may be first applied.
+        minimize:
+            Default = True
+            The direction of the optimization.
+        probabilistic_prun:
+            Default = False
+            If False, deterministic pruning with tolerance parameter is used.
+            If True, Beta distribution like sampling is used.
+            You may want to keep it False with PrunedGridSearchCV.
+        probability_modifier:
+            Default - 'auto'
+            Limits the probability of pruning a trial.
+        shuffle:
+            Default = False
+            If True, shuffle the data before splitting them into folds.
+        random_state:
+            Default = None
+            If any integer value, creates a seed for random number generation.
+
+        Usage example:
+
+            from lightgbm import LGBMRegressor
+            from sklearn.datasets import fetch_california_housing
+            from prunedcv import PrunedGridSearchCV
+
+            data = fetch_california_housing()
+            x = data['data']
+            y = data['target']
+
+            model = LGBMRegressor()
+            params_grid = {'n_estimators': [2, 5, 10, 20, 50, 100],
+                            'max_depth': [2,5,10,20,50,100,200],
+                            'learning_rate': [.001, .002, .005, .01, .02, .05, .1, .2]}
+
+            pgs = PrunedGridSearchCV(model,
+                                     params_grid,
+                                     cv=12,
+                                     tolerance=0.1)
+            pgs.fit(x, y, random_state=42)
+            pgs.best_params
+            """
 
     def __init__(self,
                  estimator,
@@ -96,6 +243,15 @@ class PrunedGridSearchCV:
 
     def fit(self, x, y):
 
+        """Executes search within the hyperparameter space.
+
+        Args:
+            x:
+                numpy ndarray or pandas DataFrame
+            y:
+                numpy ndarray or pandas Series
+        """
+
         pruner = PrunedCV(self.cv,
                           self.tolerance,
                           self.splits_to_start_pruning,
@@ -121,6 +277,70 @@ class PrunedGridSearchCV:
 
 
 class PrunedCV:
+
+    """PrunedCV applied pruning to cross-validation. Based on scores
+    from initial splits (folds) is decides whether it's worth to
+    continue the cross-validation. If not it stops the process and returns
+    estimated final score.
+
+    With probabilistic_prun == False:
+    If the trial is worth checking (the initial scores are
+    better than the best till the time or withing tolerance border) it's equivalent
+    to standard cross-validation. Otherwise the trial is pruned.
+
+    With probabilistic_prun == True
+    If the trial is better than the best trial it's continued.
+    If the trial is worse tan the best trial till the time, it's probabilistically
+    decided whether to continue the cross-validation.
+
+    Args:
+        cv:
+            Number of folds to be created for cross-validation
+        tolerance:
+            Default = 0.1.
+            If probabilistic_prun=False the value creates boundary
+            around the best score.
+            If ongoing scores are outside the boundary,
+            the trial is pruned.
+            If probabilistic_prun=True, the value is ignored.
+        splits_to_start_pruning:
+            Default = 2
+            The fold at which pruning may be first applied.
+        minimize:
+            Default = True
+            The direction of the optimization.
+        probabilistic_prun:
+            Default = False
+            If False, deterministic pruning with tolerance parameter is used.
+            If True, Beta distribution like sampling is used.
+            You may want to keep it False with PrunedGridSearchCV.
+        probability_modifier:
+            Default - 'auto'
+            Limits the probability of pruning a trial.
+
+    Usage example:
+
+        from lightgbm import LGBMRegressor
+        from sklearn.datasets import fetch_california_housing
+        from prunedcv import PrunedCV
+        import numpy as np
+
+        data = fetch_california_housing()
+        x = data['data']
+        y = data['target']
+
+        pruner = PrunedCV(cv=8, tolerance=.1)
+
+        model1 = LGBMRegressor(max_depth=25)
+        model2 = LGBMRegressor(max_depth=10)
+        model3 = LGBMRegressor(max_depth=2)
+
+        pruner.cross_val_score(model1, x, y)
+        pruner.cross_val_score(model2, x, y)
+        pruner.cross_val_score(model3, x, y)
+
+        print('best score: ', round(sum(pruner.best_splits_list_) / len(pruner.best_splits_list_),4))
+            """
 
     def __init__(self,
                  cv,
@@ -156,6 +376,16 @@ class PrunedCV:
 
     def set_tolerance(self,
                       tolerance):
+        """Set tolerance value
+
+        Args:
+            tolerance:
+            If probabilistic_prun=False the value creates boundary
+            around the best score.
+            If ongoing scores are outside the boundary,
+            the trial is pruned.
+            If probabilistic_prun=True, the value is ignored.
+        """
 
         if not isinstance(tolerance, float):
             raise TypeError
@@ -181,6 +411,30 @@ class PrunedCV:
                         metric='mse',
                         shuffle=False,
                         random_state=None):
+
+        """Calculates pruned scores
+
+        Args:
+            model:
+                An estimator to calculate cross-validated score
+            x:
+                numpy ndarray or pandas DataFrame
+            y:
+                numpy ndarray or pandas Series
+            metric:
+                Default = 'mse'
+                Metric from scikit-learn metrics to be optimized.
+            shuffle:
+                Default = False
+                If True, shuffle the data before splitting them into folds.
+            random_state:
+                Default = None
+                If any integer value, creates a seed for random number generation.
+
+        Usage example:
+
+            Check PrunedCV use example.
+        """
 
         if not isinstance(x, (numpy.ndarray, pandas.core.frame.DataFrame)):
             raise TypeError
@@ -286,6 +540,7 @@ class PrunedCV:
     def _probabilistic_prun_decision(self, split_num,
                                      mean_best_splits,
                                      mean_curr_splits):
+        """This is a Bayesian-like approach to deciding whether to prune a trial."""
 
         if self.minimize and mean_curr_splits < mean_best_splits:
             return False
