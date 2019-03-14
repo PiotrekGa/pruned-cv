@@ -209,7 +209,7 @@ class PrunedGridSearchCV:
                                      params_grid,
                                      cv=12,
                                      tolerance=0.1)
-            pgs.fit(x, y, random_state=42)
+            pgs.fit(x, y)
             pgs.best_params
             """
 
