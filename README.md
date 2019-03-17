@@ -24,8 +24,16 @@ variance may be high and lead to suboptimal hyperparameters choices.
 Pruned-cv is a compromise between brut-force methods like GridSearch and more elaborate, but vulnerable ones 
 like Optuna's pruning.
 
+## How does it work?
+
 You can see examples of correlations between cumulative folds scores in this notebook:
+
 https://github.com/PiotrekGa/pruned-cv/blob/master/examples/Correlations_between_folds.ipynb
+
+The package uses the fact that cumulative scores are highly correlated with the final score. 
+In most cases after calculating 2 folds it's possible to predict the final score very accurately.
+If a score is very non-promising the cross-validation is stoppend (pruned) and the final scores value is predicted
+based on best till the time scores.
 
 ## Installation
 
