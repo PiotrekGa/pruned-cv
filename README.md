@@ -8,6 +8,8 @@ Hyperopt or Optuna.
 It proved to be over two and two and a half times faster than Scikit-Learn GridSearchCV and RandomizedSearchCV respectively
  yielding the same results.
 
+![gs_vs_pgs](https://raw.githubusercontent.com/PiotrekGa/PiotrekGa.github.io/master/images/gs_vs_pgs.png)
+
 ## Motivation
 
 The idea was to improve speed of hyperparameter optimization. 
@@ -28,7 +30,7 @@ like Optuna's pruning.
 
 You can see examples of correlations between cumulative folds scores in this notebook:
 
-https://github.com/PiotrekGa/pruned-cv/blob/master/examples/Correlations_between_folds.ipynb
+![correlations](https://raw.githubusercontent.com/PiotrekGa/PiotrekGa.github.io/master/images/correlations.png)
 
 The package uses the fact that cumulative scores are highly correlated with the final score. 
 In most cases after calculating 2 folds it's possible to predict the final score very accurately.
