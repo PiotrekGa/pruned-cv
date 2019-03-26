@@ -1,4 +1,4 @@
-from sklearn.model_selection import KFold, ParameterGrid, ParameterSampler
+from sklearn.model_selection import KFold, StratifiedKFold, ParameterGrid, ParameterSampler
 from sklearn import metrics
 import numpy
 import pandas
@@ -383,9 +383,21 @@ class PrunedCV:
                           'accuracy']:
             raise ValueError
 
-        kf = KFold(n_splits=self.cv,
-                   shuffle=shuffle,
-                   random_state=random_state)
+        if metric in ['mse',
+                      'mae']:
+            kf = KFold(n_splits=self.cv,
+                       shuffle=shuffle,
+                       random_state=random_state)
+
+        elif metric in ['accuracy']:
+
+            kf = StratifiedKFold(n_splits=self.cv,
+                                 shuffle=shuffle,
+                                 random_state=random_state)
+
+        else:
+            raise ValueError
+
         for train_idx, test_idx in kf.split(x, y):
             if not self.prun:
 
