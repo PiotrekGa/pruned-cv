@@ -1,6 +1,6 @@
 from prunedcv import PrunedCV, PrunedGridSearchCV
-from sklearn.datasets import fetch_california_housing, load_iris
-from lightgbm import LGBMRegressor, LGBMClassifier
+from sklearn.datasets import fetch_california_housing
+from lightgbm import LGBMRegressor
 import numpy as np
 import pandas as pd
 import pytest
