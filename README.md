@@ -25,7 +25,7 @@ You may find the whole study notebook [here](https://github.com/PiotrekGa/pruned
 
 The package uses the fact that cumulative scores are highly correlated with the final score. 
 In most cases after calculating 2 folds it's possible to predict the final score very accurately.
-If a score is very non-promising the cross-validation is stoppend (pruned) and the final scores value is predicted based on best till the time scores.
+If the partial score is very poor the cross-validation is stopped (pruned) and the final scores value is predicted based on best till now scores.
 
 ## Installation
 
