@@ -24,11 +24,10 @@ class PrunedRandomizedSearchCV:
             Number of folds to be created for cross-validation
         tolerance:
             Default = 0.1.
-            If probabilistic_prun=False the value creates boundary
+            The value creates boundary
             around the best score.
             If ongoing scores are outside the boundary,
             the trial is pruned.
-            If probabilistic_prun=True, the value is ignored.
         scoring:
             Default = 'mse'
             Metric from scikit-learn metrics to be optimized.
@@ -38,14 +37,6 @@ class PrunedRandomizedSearchCV:
         minimize:
             Default = True
             The direction of the optimization.
-        probabilistic_prun:
-            Default = False
-            If False, deterministic pruning with tolerance parameter is used.
-            If True, Beta distribution like sampling is used.
-            You may want to keep it False with PrunedRandomizedSearchCV.
-        probability_modifier:
-            Default - 'auto'
-            Limits the probability of pruning a trial.
         shuffle:
             Default = False
             If True, shuffle the data before splitting them into folds.
@@ -88,8 +79,6 @@ class PrunedRandomizedSearchCV:
                  scoring='mse',
                  splits_to_start_pruning=2,
                  minimize=True,
-                 probabilistic_prun=False,
-                 probability_modifier='auto',
                  shuffle=False,
                  random_state=None):
 
@@ -98,13 +87,11 @@ class PrunedRandomizedSearchCV:
         self.n_iter = n_iter
         self.cv = cv
         self.tolerance = tolerance
-        self.scoring=scoring
+        self.scoring = scoring
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
-        self.probabilistic_prun = probabilistic_prun
-        self.probability_modifier = probability_modifier
         self.shuffle = shuffle
-        self.random_state=random_state
+        self.random_state = random_state
         self.params_grid_iterable = ParameterSampler(param_distributions=self.param_distributions,
                                                      n_iter=self.n_iter,
                                                      random_state=self.random_state)
@@ -125,8 +112,7 @@ class PrunedRandomizedSearchCV:
         pruner = PrunedCV(self.cv,
                           self.tolerance,
                           self.splits_to_start_pruning,
-                          self.minimize,
-                          self.probabilistic_prun)
+                          self.minimize)
 
         for params_set in self.params_grid_iterable:
             self.estimator.set_params(**params_set)
@@ -161,11 +147,10 @@ class PrunedGridSearchCV:
             Number of folds to be created for cross-validation
         tolerance:
             Default = 0.1.
-            If probabilistic_prun=False the value creates boundary
+            The value creates boundary
             around the best score.
             If ongoing scores are outside the boundary,
             the trial is pruned.
-            If probabilistic_prun=True, the value is ignored.
         scoring:
             Default = 'mse'
             Metric from scikit-learn metrics to be optimized.
@@ -175,14 +160,6 @@ class PrunedGridSearchCV:
         minimize:
             Default = True
             The direction of the optimization.
-        probabilistic_prun:
-            Default = False
-            If False, deterministic pruning with tolerance parameter is used.
-            If True, Beta distribution like sampling is used.
-            You may want to keep it False with PrunedGridSearchCV.
-        probability_modifier:
-            Default - 'auto'
-            Limits the probability of pruning a trial.
         shuffle:
             Default = False
             If True, shuffle the data before splitting them into folds.
@@ -221,8 +198,6 @@ class PrunedGridSearchCV:
                  scoring='mse',
                  splits_to_start_pruning=2,
                  minimize=True,
-                 probabilistic_prun=False,
-                 probability_modifier='auto',
                  shuffle=False,
                  random_state=None):
 
@@ -233,10 +208,8 @@ class PrunedGridSearchCV:
         self.scoring = scoring
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
-        self.probabilistic_prun = probabilistic_prun
-        self.probability_modifier = probability_modifier
         self.shuffle = shuffle
-        self.random_state=random_state
+        self.random_state = random_state
         self.params_grid_iterable = ParameterGrid(self.params_grid)
         self.best_params = None
         self.best_score = None
@@ -255,8 +228,7 @@ class PrunedGridSearchCV:
         pruner = PrunedCV(self.cv,
                           self.tolerance,
                           self.splits_to_start_pruning,
-                          self.minimize,
-                          self.probabilistic_prun)
+                          self.minimize)
 
         for params_set in self.params_grid_iterable:
             self.estimator.set_params(**params_set)
@@ -283,40 +255,26 @@ class PrunedCV:
     continue the cross-validation. If not it stops the process and returns
     estimated final score.
 
-    With probabilistic_prun == False:
     If the trial is worth checking (the initial scores are
     better than the best till the time or withing tolerance border) it's equivalent
     to standard cross-validation. Otherwise the trial is pruned.
 
-    With probabilistic_prun == True
-    If the trial is better than the best trial it's continued.
-    If the trial is worse tan the best trial till the time, it's probabilistically
-    decided whether to continue the cross-validation.
 
     Args:
         cv:
             Number of folds to be created for cross-validation
         tolerance:
             Default = 0.1.
-            If probabilistic_prun=False the value creates boundary
+            The value creates boundary
             around the best score.
             If ongoing scores are outside the boundary,
             the trial is pruned.
-            If probabilistic_prun=True, the value is ignored.
         splits_to_start_pruning:
             Default = 2
             The fold at which pruning may be first applied.
         minimize:
             Default = True
             The direction of the optimization.
-        probabilistic_prun:
-            Default = False
-            If False, deterministic pruning with tolerance parameter is used.
-            If True, Beta distribution like sampling is used.
-            You may want to keep it False with PrunedGridSearchCV.
-        probability_modifier:
-            Default - 'auto'
-            Limits the probability of pruning a trial.
 
     Usage example:
 
@@ -346,33 +304,22 @@ class PrunedCV:
                  cv,
                  tolerance=0.1,
                  splits_to_start_pruning=2,
-                 minimize=True,
-                 probabilistic_prun=False,
-                 probability_modifier='auto'):
+                 minimize=True):
 
         if not isinstance(cv, int):
             raise TypeError
         if cv < 2:
-            raise ValueError
-        if probabilistic_prun and not isinstance(probability_modifier, (int, float, str)):
-            raise TypeError
-        if probabilistic_prun and isinstance(probability_modifier, (int, float)) and probability_modifier < 1:
             raise ValueError
 
         self.cv = cv
         self.set_tolerance(tolerance)
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
-        self.probabilistic_prun = probabilistic_prun
-        self.probability_modifier = probability_modifier
         self.prun = False
         self.cross_val_score_value = None
         self.current_splits_list_ = []
         self.best_splits_list_ = []
         self.first_run_ = True
-        self.probability_modifier_value = self._probability_modifier_value(self.probability_modifier,
-                                                                           self.cv,
-                                                                           self.splits_to_start_pruning)
 
     def set_tolerance(self,
                       tolerance):
@@ -380,11 +327,10 @@ class PrunedCV:
 
         Args:
             tolerance:
-            If probabilistic_prun=False the value creates boundary
+            The value creates boundary
             around the best score.
             If ongoing scores are outside the boundary,
             the trial is pruned.
-            If probabilistic_prun=True, the value is ignored.
         """
 
         if not isinstance(tolerance, float):
@@ -393,16 +339,6 @@ class PrunedCV:
             raise ValueError
 
         self.tolerance = tolerance
-
-    @staticmethod
-    def _probability_modifier_value(probability_modifier,
-                                    cv,
-                                    splits_to_start_pruning):
-
-        if probability_modifier == 'auto':
-            return cv - splits_to_start_pruning
-        else:
-            return probability_modifier
 
     def cross_val_score(self,
                         model,
@@ -512,16 +448,10 @@ class PrunedCV:
 
         if self.cv > split_num >= self.splits_to_start_pruning:
 
-            if self.probabilistic_prun:
-                self.prun = self._probabilistic_prun_decision(split_num,
-                                                              mean_best_splits,
-                                                              mean_curr_splits)
-
-            else:
-                self.prun = self._significantly_higher_value(mean_best_splits,
-                                                             mean_curr_splits,
-                                                             self.minimize,
-                                                             self.tolerance)
+            self.prun = self._significantly_higher_value(mean_best_splits,
+                                                         mean_curr_splits,
+                                                         self.minimize,
+                                                         self.tolerance)
 
             if self.prun:
                 self.cross_val_score_value = self._predict_pruned_score(mean_curr_splits,
@@ -536,40 +466,6 @@ class PrunedCV:
         tolerance_scaler_if_min = 1 + minimize * tolerance
         tolerance_scaler_if_max = 1 + (1 - minimize) * tolerance
         return mean_best_splits * tolerance_scaler_if_min < mean_curr_splits * tolerance_scaler_if_max
-
-    def _probabilistic_prun_decision(self, split_num,
-                                     mean_best_splits,
-                                     mean_curr_splits):
-        """This is a Bayesian-like approach to deciding whether to prune a trial."""
-
-        if self.minimize and mean_curr_splits < mean_best_splits:
-            return False
-
-        elif not self.minimize and mean_curr_splits > mean_best_splits:
-            return False
-
-        else:
-            alpha = sum([i[0] < i[1] for i in zip(self.best_splits_list_[:split_num],
-                                                  self.current_splits_list_)])
-
-            beta = sum([i[0] > i[1] for i in zip(self.best_splits_list_[:split_num],
-                                                 self.current_splits_list_)])
-
-            random_value = numpy.random.beta(1 + alpha, 1 + beta)
-
-            return self._probability_prun_decision_output(self.minimize,
-                                                          random_value,
-                                                          self.probability_modifier_value)
-
-    @staticmethod
-    def _probability_prun_decision_output(minimize,
-                                          random_value,
-                                          probability_modifier_value):
-
-        if minimize:
-            return -random_value * probability_modifier_value < -0.5
-        else:
-            return random_value * probability_modifier_value < 0.5
 
     def _predict_pruned_score(self,
                               mean_curr_splits,
