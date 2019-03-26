@@ -379,7 +379,8 @@ class PrunedCV:
             raise TypeError
 
         if metric not in ['mse',
-                          'mae']:
+                          'mae',
+                          'accuracy']:
             raise ValueError
 
         kf = KFold(n_splits=self.cv,
@@ -410,6 +411,9 @@ class PrunedCV:
                 elif metric == 'mae':
                     self._add_split_value_and_prun(metrics.mean_absolute_error(y_test,
                                                                                y_test_teor))
+                elif metric == 'accuracy':
+                    self._add_split_value_and_prun(metrics.accuracy_score(y_test,
+                                                                          y_test_teor))
 
         self.prun = False
         return self.cross_val_score_value
