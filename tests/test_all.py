@@ -1,5 +1,6 @@
 from prunedcv import PrunedCV, PrunedGridSearchCV
-from sklearn.datasets import fetch_california_housing
+from sklearn.datasets import fetch_california_housing, load_wine
+from sklearn.linear_model import LogisticRegression
 from lightgbm import LGBMRegressor
 import numpy as np
 import pandas as pd
@@ -348,3 +349,14 @@ def test_prun_first_run_list_len():
     prun.cross_val_score(model, x, y)
 
     assert len(prun.best_splits_list_) == 8
+
+
+def test_prun_accuracy():
+    x, y = load_wine(return_X_y=True)
+
+    model = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=10000)
+    params_grid = {'C': [0.001, 1.0, 0.01]}
+    pgs = PrunedGridSearchCV(model, params_grid, cv=4, scoring='accuracy', minimize=False)
+
+    pgs.fit(x, y)
+    assert pgs.best_params['C'] == 1.0

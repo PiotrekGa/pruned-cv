@@ -124,7 +124,7 @@ class PrunedRandomizedSearchCV:
                                            random_state=self.random_state)
 
             if self.best_score is not None:
-                if (self.minimize and self.best_score > score) or (not self.minimize and self.best_score < score):
+                if self.best_score > score:
                     self.best_score = score
                     self.best_params = params_set
             else:
@@ -240,7 +240,7 @@ class PrunedGridSearchCV:
                                            random_state=self.random_state)
 
             if self.best_score is not None:
-                if (self.minimize and self.best_score > score) or (not self.minimize and self.best_score < score):
+                if self.best_score > score:
                     self.best_score = score
                     self.best_params = params_set
             else:
@@ -455,7 +455,10 @@ class PrunedCV:
     def _populate_best_splits_list_at_first_run(self,
                                                 value):
 
-        self.best_splits_list_.append(value)
+        if self.minimize:
+            self.best_splits_list_.append(value)
+        else:
+            self.best_splits_list_.append(-value)
 
         if len(self.best_splits_list_) == self.cv:
             self.first_run_ = False
