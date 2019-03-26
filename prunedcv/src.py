@@ -315,7 +315,7 @@ class PrunedCV:
         self.set_tolerance(tolerance)
         self.splits_to_start_pruning = splits_to_start_pruning
         self.minimize = minimize
-        self.prun = False
+        self.prune = False
         self.cross_val_score_value = None
         self.current_splits_list_ = []
         self.best_splits_list_ = []
@@ -399,7 +399,7 @@ class PrunedCV:
             raise ValueError
 
         for train_idx, test_idx in kf.split(x, y):
-            if not self.prun:
+            if not self.prune:
 
                 if isinstance(x, numpy.ndarray):
                     x_train = x[train_idx]
@@ -427,7 +427,7 @@ class PrunedCV:
                     self._add_split_value_and_prun(metrics.accuracy_score(y_test,
                                                                           y_test_teor))
 
-        self.prun = False
+        self.prune = False
         return self.cross_val_score_value
 
     def _add_split_value_and_prun(self,
@@ -437,7 +437,7 @@ class PrunedCV:
             raise TypeError
 
         if len(self.current_splits_list_) == 0:
-            self.prun = False
+            self.prune = False
 
         if self.minimize:
             self.current_splits_list_.append(value)
@@ -447,7 +447,7 @@ class PrunedCV:
         if self.first_run_:
             self._populate_best_splits_list_at_first_run(value)
         else:
-            self._decide_prun()
+            self._decide_prune()
 
         if len(self.current_splits_list_) == self.cv:
             self._serve_last_split()
@@ -463,7 +463,7 @@ class PrunedCV:
         if len(self.best_splits_list_) == self.cv:
             self.first_run_ = False
 
-    def _decide_prun(self):
+    def _decide_prune(self):
 
         split_num = len(self.current_splits_list_)
         mean_best_splits = sum(self.best_splits_list_[:split_num]) / split_num
@@ -471,12 +471,12 @@ class PrunedCV:
 
         if self.cv > split_num >= self.splits_to_start_pruning:
 
-            self.prun = self._significantly_higher_value(mean_best_splits,
-                                                         mean_curr_splits,
-                                                         self.minimize,
-                                                         self.tolerance)
+            self.prune = self._significantly_higher_value(mean_best_splits,
+                                                          mean_curr_splits,
+                                                          self.minimize,
+                                                          self.tolerance)
 
-            if self.prun:
+            if self.prune:
                 self.cross_val_score_value = self._predict_pruned_score(mean_curr_splits,
                                                                         mean_best_splits)
                 self.current_splits_list_ = []

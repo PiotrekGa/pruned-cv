@@ -16,7 +16,7 @@ def test_pruner_prun_yes():
 
     pruner._add_split_value_and_prun(10000.0)
 
-    assert pruner.prun
+    assert pruner.prune
 
 
 def test_pruner_prun_no():
@@ -29,7 +29,7 @@ def test_pruner_prun_no():
     for i in range(3):
         pruner._add_split_value_and_prun(.6)
 
-    assert not pruner.prun
+    assert not pruner.prune
 
 
 def test_pruner_prun_back():
@@ -45,7 +45,7 @@ def test_pruner_prun_back():
     for i in range(3):
         pruner._add_split_value_and_prun(1.0)
 
-    assert not pruner.prun
+    assert not pruner.prune
 
 
 def test_prun_first_run():
@@ -342,13 +342,13 @@ def test_prun_first_run_list_len():
     x = data['data']
     y = data['target']
 
-    prun = PrunedCV(8, 0.0)
+    pruner = PrunedCV(8, 0.0)
 
     model = LGBMRegressor(n_estimators=2)
 
-    prun.cross_val_score(model, x, y)
+    pruner.cross_val_score(model, x, y)
 
-    assert len(prun.best_splits_list_) == 8
+    assert len(pruner.best_splits_list_) == 8
 
 
 def test_prun_accuracy():
