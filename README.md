@@ -7,6 +7,9 @@ It proved to be around three times faster than Scikit-Learn GridSearchCV and Ran
 
 ![gs_vs_pgs](https://raw.githubusercontent.com/PiotrekGa/PiotrekGa.github.io/master/images/gs_vs_pgs.png)
 
+You can find a broader overview of the motivation an methodology under this
+[directory](https://piotrekga.github.io/Pruned-Cross-Validation/).
+
 ## Motivation
 
 The idea was to improve speed of hyperparameter optimization. All the methods which base on cross-validation require many big folds number (8 is an absolute minimum) to assure that the surrogate model (whether it's GridSearch, RandomSearch or a Bayesian model) does not overfit to the training set. Some hyperparameters set may be assessed of poor quality without calculating all the folds.
