@@ -8,7 +8,7 @@ It proved to be around three times faster than Scikit-Learn GridSearchCV and Ran
 ![gs_vs_pgs](https://raw.githubusercontent.com/PiotrekGa/PiotrekGa.github.io/master/images/gs_vs_pgs.png)
 
 You can find a broader overview of the motivation an methodology under this
-[directory](https://piotrekga.github.io/Pruned-Cross-Validation/).
+[directory](https://piotrekga.github.io/Pruned-Cross-Validation/) or alternatively on [Medium](https://towardsdatascience.com/pruned-cross-validation-for-hyperparameter-optimization-1c4e0588191a).
 
 ## Motivation
 
