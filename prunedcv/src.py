@@ -380,7 +380,8 @@ class PrunedCV:
 
         if metric not in ['mse',
                           'mae',
-                          'accuracy']:
+                          'accuracy',
+                          'auc']:
             raise ValueError
 
         if metric in ['mse',
@@ -389,7 +390,8 @@ class PrunedCV:
                        shuffle=shuffle,
                        random_state=random_state)
 
-        elif metric in ['accuracy']:
+        elif metric in ['accuracy',
+                        'auc']:
 
             kf = StratifiedKFold(n_splits=self.cv,
                                  shuffle=shuffle,
@@ -426,6 +428,9 @@ class PrunedCV:
                 elif metric == 'accuracy':
                     self._add_split_value_and_prun(metrics.accuracy_score(y_test,
                                                                           y_test_teor))
+                elif metric == 'auc':
+                    self._add_split_value_and_prun(metrics.roc_auc_score(y_test,
+                                                                         y_test_teor))
 
         self.prune = False
         return self.cross_val_score_value
