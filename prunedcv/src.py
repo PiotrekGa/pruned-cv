@@ -417,18 +417,21 @@ class PrunedCV:
                     y_test = y.iloc[test_idx]
 
                 model.fit(x_train, y_train)
-                y_test_teor = model.predict(x_test)
 
                 if metric == 'mse':
+                    y_test_teor = model.predict(x_test)
                     self._add_split_value_and_prun(metrics.mean_squared_error(y_test,
                                                                               y_test_teor))
                 elif metric == 'mae':
+                    y_test_teor = model.predict(x_test)
                     self._add_split_value_and_prun(metrics.mean_absolute_error(y_test,
                                                                                y_test_teor))
                 elif metric == 'accuracy':
+                    y_test_teor = model.predict(x_test)
                     self._add_split_value_and_prun(metrics.accuracy_score(y_test,
                                                                           y_test_teor))
                 elif metric == 'auc':
+                    y_test_teor = model.predict_proba(x_test)[:, 1]
                     self._add_split_value_and_prun(metrics.roc_auc_score(y_test,
                                                                          y_test_teor))
 
