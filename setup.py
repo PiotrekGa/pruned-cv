@@ -4,7 +4,7 @@ setup(
     name='prunedcv',
     author='Piotr Gabryś',
     author_email='piotrek.gabrys@gmail.com',
-    version='0.0.3',
+    version='0.0.4',
     packages=['prunedcv',],
     install_requires=[
         'scikit-learn>=0.20.2',
