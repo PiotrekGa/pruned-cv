@@ -360,3 +360,20 @@ def test_prun_accuracy():
 
     pgs.fit(x, y)
     assert pgs.best_params['C'] == 1.0
+
+
+def test_pgs_auc_weighted():
+    x, y = load_wine(return_X_y=True)
+    x = x[y != 2]
+    y = y[y != 2]
+    np.random.seed(42)
+    w = np.random.rand(len(y)) * 2
+
+    model = LogisticRegression(solver='lbfgs', max_iter=10000)
+    params_grid = {'C': [0.001, 1.0, 0.01]}
+    pgs = PrunedGridSearchCV(model, params_grid, cv=4, scoring='auc', minimize=False)
+
+    pgs.fit(x, y, sample_weight=w)
+
+    assert round(pgs.best_score, 4) == -0.9953
+    assert pgs.best_params['C'] == 1.0

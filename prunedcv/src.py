@@ -98,7 +98,7 @@ class PrunedRandomizedSearchCV:
         self.best_params = None
         self.best_score = None
 
-    def fit(self, x, y):
+    def fit(self, x, y, sample_weight=None):
 
         """Executes search within the hyperparameter space.
 
@@ -107,6 +107,9 @@ class PrunedRandomizedSearchCV:
                 numpy ndarray or pandas DataFrame
             y:
                 numpy ndarray or pandas Series
+            sample_weight:
+                Default = None
+                None or numpy ndarray or pandas Series
         """
 
         pruner = PrunedCV(self.cv,
@@ -119,6 +122,7 @@ class PrunedRandomizedSearchCV:
             score = pruner.cross_val_score(self.estimator,
                                            x,
                                            y,
+                                           sample_weight=sample_weight,
                                            metric=self.scoring,
                                            shuffle=self.shuffle,
                                            random_state=self.random_state)
@@ -214,7 +218,7 @@ class PrunedGridSearchCV:
         self.best_params = None
         self.best_score = None
 
-    def fit(self, x, y):
+    def fit(self, x, y, sample_weight=None):
 
         """Executes search within the hyperparameter space.
 
@@ -223,6 +227,9 @@ class PrunedGridSearchCV:
                 numpy ndarray or pandas DataFrame
             y:
                 numpy ndarray or pandas Series
+            sample_weight:
+                Default = None
+                None or numpy ndarray or pandas Series
         """
 
         pruner = PrunedCV(self.cv,
@@ -235,6 +242,7 @@ class PrunedGridSearchCV:
             score = pruner.cross_val_score(self.estimator,
                                            x,
                                            y,
+                                           sample_weight=sample_weight,
                                            metric=self.scoring,
                                            shuffle=self.shuffle,
                                            random_state=self.random_state)
@@ -359,7 +367,8 @@ class PrunedCV:
             y:
                 numpy ndarray or pandas Series
             sample_weight:
-                numpy ndarray or pandas Series
+                Default = None
+                None or numpy ndarray or pandas Series
             metric:
                 Default = 'mse'
                 Metric from scikit-learn metrics to be optimized.
@@ -426,49 +435,40 @@ class PrunedCV:
                     else:
                         sample_weight_train = sample_weight.iloc[train_idx]
                         sample_weight_test = sample_weight.iloc[test_idx]
-
-                if sample_weight is not None:
-                    model.fit(x_train, y_train, sample_weight=sample_weight_train)
                 else:
-                    model.fit(x_train, y_train)
+                    sample_weight_train = None
+                    sample_weight_test = None
+
+                model.fit(x_train, y_train, sample_weight=sample_weight_train)
 
                 if metric == 'mse':
                     y_test_teor = model.predict(x_test)
-                    if sample_weight is not None:
-                        self._add_split_value_and_prun(metrics.mean_squared_error(y_test,
-                                                                                  y_test_teor,
-                                                                                  sample_weight=sample_weight_test))
-                    else:
-                        self._add_split_value_and_prun(metrics.mean_squared_error(y_test,
-                                                                                  y_test_teor))
-                elif metric == 'mae':
-                    y_test_teor = model.predict(x_test)
-                    if sample_weight is not None:
-                        self._add_split_value_and_prun(metrics.mean_absolute_error(y_test,
-                                                                                   y_test_teor,
-                                                                                   sample_weight=sample_weight_test))
-                    else:
-                        self._add_split_value_and_prun(metrics.mean_absolute_error(y_test,
-                                                                                   y_test_teor))
-                elif metric == 'accuracy':
-                    y_test_teor = model.predict(x_test)
-                    if sample_weight is not None:
-                        self._add_split_value_and_prun(metrics.accuracy_score(y_test,
+
+                    self._add_split_value_and_prun(metrics.mean_squared_error(y_test,
                                                                               y_test_teor,
                                                                               sample_weight=sample_weight_test))
-                    else:
-                        self._add_split_value_and_prun(metrics.accuracy_score(y_test,
-                                                                              y_test_teor))
+
+                elif metric == 'mae':
+                    y_test_teor = model.predict(x_test)
+
+                    self._add_split_value_and_prun(metrics.mean_absolute_error(y_test,
+                                                                               y_test_teor,
+                                                                               sample_weight=sample_weight_test))
+
+                elif metric == 'accuracy':
+                    y_test_teor = model.predict(x_test)
+
+                    self._add_split_value_and_prun(metrics.accuracy_score(y_test,
+                                                                          y_test_teor,
+                                                                          sample_weight=sample_weight_test))
 
                 elif metric == 'auc':
                     y_test_teor = model.predict_proba(x_test)[:, 1]
-                    if sample_weight is not None:
-                        self._add_split_value_and_prun(metrics.roc_auc_score(y_test,
-                                                                             y_test_teor,
-                                                                             sample_weight=sample_weight_test))
-                    else:
-                        self._add_split_value_and_prun(metrics.roc_auc_score(y_test,
-                                                                             y_test_teor))
+
+                    self._add_split_value_and_prun(metrics.roc_auc_score(y_test,
+                                                                         y_test_teor,
+                                                                         sample_weight=sample_weight_test))
+
 
         self.prune = False
         return self.cross_val_score_value
